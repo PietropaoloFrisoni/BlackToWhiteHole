@@ -17,12 +17,12 @@ end
 function init_config(user_conf, data_folder_path::String, contracted_spinfoam_found::Bool=false)
 
     j0_float = user_conf[1]
-    jpm_float = round(Int64, 2 * (j0_float / (sqrt(6)))) / 2
+    jpm_float = user_conf[2]
     j0 = half(2 * j0_float)
     jpm = half(2 * jpm_float)
 
-    K0 = half(2)
-    Kpm = half(2)
+    K0 = half(1)
+    Kpm = half(0)
 
     # ensure that there's at least 1 possible value (triangular inequalities)
     if (j0_float == 7.5)

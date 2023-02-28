@@ -83,5 +83,3 @@ end
 
 current_date = now()
 pre_final_data_path = "$(current_folder)/data"
-final_data_path = "$(pre_final_data_path)/immirzi_$(immirzi)/alpha_$(alpha)"
-mkpath(final_data_path)

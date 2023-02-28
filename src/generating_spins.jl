@@ -4,7 +4,7 @@ function generating_spins(j0, K0, jpm, Kpm, base_folder, spinfoam_folder, immirz
     spins_configurations = NTuple{10,HalfInt8}[]
     intertwiners_range = NTuple{5,Int8}[]
     onehalf = half(1)
-  
+
     #number_of_angular_spins_combinations = file_count(vertex_folder)
     #spins_map = Vector{Int64}(undef, number_of_angular_spins_combinations)
   
@@ -57,11 +57,13 @@ function generating_spins(j0, K0, jpm, Kpm, base_folder, spinfoam_folder, immirz
       spins_map[counter_angular_spins_combinations] = number_of_radial_spins_combinations_for_this_angular_spin_combination
   
     end
+
+    number_of_spins_configurations = size(spins_configurations)[1]
   
     if (verbosity_flux == true)
   
       println("Number of angular spins combinations: $(counter_angular_spins_combinations)\n",
-        "Total number of spins combinations: $(size(spins_configurations)[1])\n")
+        "Total number of spins combinations: $(number_of_spins_configurations)\n")
   
     end
   
