@@ -2,8 +2,8 @@ current_folder = pwd()
 
 using Distributed
 
-number_of_workers = nworkers() 
-number_of_threads = Threads.nthreads()
+@eval @everywhere number_of_workers = nworkers()
+@eval @everywhere number_of_threads = Threads.nthreads()
 
 # folder where data are stored
 @eval @everywhere data_folder_path = "./" #$(ARGS[1])
@@ -44,11 +44,20 @@ check_on_preliminary_parameters(data_folder_path, sl2cfoam_next_data_folder, Dl_
 end
 println("done\n")
 
+println("Initializing sl2cfoam-next on each worker...")
+@everywhere init_sl2cfoam_next(immirzi, sl2cfoam_next_data_folder, number_of_threads, verbosity_flux)
+println("done\n")
+
+current_date = now()
+data_folder_path = "$(data_folder_path)"
+comp_times_data_path = "$(data_folder_path)/data/computational_times/vertex_computations/run_started_on:$(current_date)"
+mkpath(comp_times_data_path)
+
 println("-------------------------------------------------------------------------\n")
 printstyled("Starting computations\n\n"; bold=true, color=:blue)
 println("-------------------------------------------------------------------------")
 
-# Dataframes in which the computational times are stored 
+# Dataframe in which the computational times are stored 
 computational_times = Array{Float64,2}(undef, Dl_max - Dl_min + 1, number_conf)
 column_labels = String[]
 counter_df = 0
@@ -63,12 +72,11 @@ for user_conf in angular_spins
     printstyled("\n\nStarting with configuration:\nj0=$(conf.j0), jpm=$(conf.jpm) ...\n\n"; bold=true, color=:bold)
     sleep(1)
 
-
     #####################################################################################################################################
     # COMPUTING SPINS COMBINATIONS
     #####################################################################################################################################
 
-    printstyled("\nComputing all possible spins combinations\n",
+    printstyled("\nComputing spins combinations\n",
         "for angular spins in [$(conf.j0_float - conf.K0), $(conf.j0_float + conf.K0)] ",
         "and radial spins in [$(conf.jpm_float - conf.Kpm), $(conf.jpm_float + conf.Kpm)] ...\n\n"; bold=true, color=:cyan)
     generating_spins(conf.j0, conf.K0, conf.jpm, conf.Kpm, conf.base_folder, conf.spinfoam_folder, immirzi, verbosity_flux)
@@ -77,9 +85,31 @@ for user_conf in angular_spins
     # COMPUTING VERTICES
     #####################################################################################################################################
 
+    @load "$(conf.base_folder)/spins_configurations.jld2" spins_configurations
+
+    printstyled("\nComputing all vertices...\n"; bold=true, color=:blue)
+
+    for Dl = Dl_min:Dl_max
+
+        printstyled("\nCurrent Dl=$(Dl)...\n"; bold=true, color=:magenta)
+
+        seconds_required = @elapsed vertex_distributed_single_machine(spins_configurations, Dl, (true, true))
+        println("done. Time required: $(seconds_required) seconds\n")
+        computational_times[Dl+1, counter_df] = seconds_required
+
+    end
+
+    push!(column_labels, "j0 = $(conf.j0_float), jpm = $(conf.jpm_float)")
 
 end
 
+# store computational times
+df = DataFrame(computational_times, column_labels)
+CSV.write("$(comp_times_data_path)/immirzi_$(immirzi)_workers_$(number_of_workers)_threads_$(number_of_threads).csv", df)
 
-current_date = now()
-pre_final_data_path = "$(current_folder)/data"
+# release workers
+for i in workers()
+    rmprocs(i)
+end
+
+printstyled("\nCompleted\n\n"; bold=true, color=:blue)

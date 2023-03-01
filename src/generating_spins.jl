@@ -1,13 +1,8 @@
 # generate a list of all spins to compute and make folders
-function generating_spins(j0, K0, jpm, Kpm, base_folder, spinfoam_folder, immirzi, verbosity_flux)
+function generating_spins(j0, K0, jpm, Kpm, base_folder, spinfoam_folder, immirzi, verbosity_flux, onehalf = half(1))
 
     spins_configurations = NTuple{10,HalfInt8}[]
     intertwiners_range = NTuple{5,Int8}[]
-    onehalf = half(1)
-
-    #number_of_angular_spins_combinations = file_count(vertex_folder)
-    #spins_map = Vector{Int64}(undef, number_of_angular_spins_combinations)
-  
     spins_map = ElasticArray{Int64}(undef, 0)
   
     counter_angular_spins_combinations = 0
@@ -61,10 +56,7 @@ function generating_spins(j0, K0, jpm, Kpm, base_folder, spinfoam_folder, immirz
     number_of_spins_configurations = size(spins_configurations)[1]
   
     if (verbosity_flux == true)
-  
-      println("Number of angular spins combinations: $(counter_angular_spins_combinations)\n",
-        "Total number of spins combinations: $(number_of_spins_configurations)\n")
-  
+      println("Total number of spins combinations: $(number_of_spins_configurations)\n")  
     end
   
     @save "$(base_folder)/spins_configurations.jld2" spins_configurations

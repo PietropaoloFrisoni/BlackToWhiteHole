@@ -24,32 +24,6 @@ function init_config(user_conf, data_folder_path::String, contracted_spinfoam_fo
     K0 = half(1)
     Kpm = half(0)
 
-    # ensure that there's at least 1 possible value (triangular inequalities)
-    if (j0_float == 7.5)
-        jpm_float = 3.5
-        jpm = half(2 * jpm_float)
-    end
-    if (j0_float == 8)
-        jpm_float = 3
-        jpm = half(2 * jpm_float)
-    end
-    if (j0_float == 9)
-        jpm_float = 4
-        jpm = half(2 * jpm_float)
-    end
-    if (j0_float == 9.5)
-        jpm_float = 3.5
-        jpm = half(2 * jpm_float)
-    end
-    if (j0_float == 11)
-        jpm_float = 4
-        jpm = half(2 * jpm_float)
-    end
-    if (j0_float == 12.5)
-        jpm_float = 5.5
-        jpm = half(2 * jpm_float)
-    end
-
     intermediate_path_data_folder = "/data/spinfoam_data/j0=$(j0_float)_jpm=$(jpm_float)"
 
     # where spins_conf, spins_map and intertwiner_range are stored
@@ -66,13 +40,13 @@ function init_config(user_conf, data_folder_path::String, contracted_spinfoam_fo
 
 end
 
-function init_sl2cfoam_next(Immirzi_parameter, sl2cfoam_next_data_folder, number_of_threads, verbosity_flux)
+function init_sl2cfoam_next(immirzi, sl2cfoam_next_data_folder, number_of_threads, verbosity_flux)
 
     isMPI = @ccall SL2Cfoam.clib.sl2cfoam_is_MPI()::Bool
     isMPI && error("MPI version not allowed")
 
     conf_sl2cfoam_next = SL2Cfoam.Config(VerbosityOff, HighAccuracy, 100, 0)
-    SL2Cfoam.cinit(sl2cfoam_next_data_folder, Immirzi_parameter, conf_sl2cfoam_next)
+    SL2Cfoam.cinit(sl2cfoam_next_data_folder, immirzi, conf_sl2cfoam_next)
 
     shell_parallelization = false
 
@@ -83,7 +57,7 @@ function init_sl2cfoam_next(Immirzi_parameter, sl2cfoam_next_data_folder, number
 
     SL2Cfoam.set_OMP(shell_parallelization)
 
-    if (verbosity_flux && Bool(myid()))
+    if (verbosity_flux && myid() == 1)
         println("sl2cfoam-next initialized on each worker with C parallelization set to $(shell_parallelization)")
     end
 
