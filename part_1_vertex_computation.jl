@@ -73,7 +73,7 @@ for user_conf in angular_spins
     sleep(1)
 
     #####################################################################################################################################
-    # COMPUTING SPINS COMBINATIONS
+    ### COMPUTING SPINS COMBINATIONS
     #####################################################################################################################################
 
     printstyled("\nComputing spins combinations\n",
@@ -82,7 +82,7 @@ for user_conf in angular_spins
     generating_spins(conf.j0, conf.K0, conf.jpm, conf.Kpm, conf.base_folder, conf.spinfoam_folder, immirzi, verbosity_flux)
 
     #####################################################################################################################################
-    # COMPUTING VERTICES
+    ### COMPUTING VERTICES
     #####################################################################################################################################
 
     @load "$(conf.base_folder)/spins_configurations.jld2" spins_configurations
