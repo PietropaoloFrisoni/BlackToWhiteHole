@@ -57,14 +57,7 @@ println("-----------------------------------------------------------------------
 printstyled("Starting computations\n\n"; bold=true, color=:blue)
 println("-------------------------------------------------------------------------")
 
-# Dataframe in which the computational times are stored 
-computational_times = Array{Float64,2}(undef, Dl_max - Dl_min + 1, number_conf)
-column_labels = String[]
-counter_df = 0
-
 for user_conf in angular_spins
-
-    global counter_df += 1
 
     conf = init_config(user_conf, data_folder_path)
     @eval @everywhere conf = $conf
@@ -73,39 +66,45 @@ for user_conf in angular_spins
     sleep(1)
 
     #####################################################################################################################################
-    # COMPUTING SPINS COMBINATIONS
+    # CONTRACTING VERTICES
     #####################################################################################################################################
 
-    printstyled("\nComputing spins combinations\n",
-        "for angular spins in [$(conf.j0_float - conf.K0), $(conf.j0_float + conf.K0)] ",
-        "and radial spins in [$(conf.jpm_float - conf.Kpm), $(conf.jpm_float + conf.Kpm)] ...\n\n"; bold=true, color=:cyan)
-    generating_spins(conf.j0, conf.K0, conf.jpm, conf.Kpm, conf.base_folder, conf.spinfoam_folder, immirzi, verbosity_flux)
+    printstyled("\nContracting vertices...\n"; bold=true, color=:blue)
 
-    #####################################################################################################################################
-    # COMPUTING VERTICES
-    #####################################################################################################################################
-
-    @load "$(conf.base_folder)/spins_configurations.jld2" spins_configurations
-
-    printstyled("\nComputing all vertices...\n"; bold=true, color=:blue)
+    @everywhere begin
+        @load "$(conf.base_folder)/spins_configurations.jld2" spins_configurations
+        @load "$(conf.base_folder)/spins_map.jld2" spins_map
+        @load "$(conf.base_folder)/intertwiners_range.jld2" intertwiners_range
+    end
 
     for Dl = Dl_min:Dl_max
 
         printstyled("\nCurrent Dl=$(Dl)...\n"; bold=true, color=:magenta)
 
-        seconds_required = @elapsed vertex_distributed_single_machine(spins_configurations, Dl, (true, true))
-        println("done. Time required: $(seconds_required) seconds\n")
-        computational_times[Dl+1, counter_df] = seconds_required
+        @time @sync @distributed for current_angular_spins_comb in eachindex(spins_map)
+
+            total_radial_spins_combinations = spins_map[current_angular_spins_comb]
+            upper_bound = sum(spins_map[1:current_angular_spins_comb])
+            lower_bound = upper_bound - total_radial_spins_combinations + 1
+
+            j1 = twice(spins_configurations[lower_bound][1]) / 2
+            j2 = twice(spins_configurations[lower_bound][2]) / 2
+            j3 = twice(spins_configurations[lower_bound][3]) / 2
+            j4 = twice(spins_configurations[lower_bound][4]) / 2
+
+            i1_range = intertwiners_range[lower_bound][1]
+
+            total_elements = convert(Int, total_radial_spins_combinations * (total_radial_spins_combinations + 1) / 2)
+
+            contracted_spinfoam = Vector{ComplexF64}(undef, total_elements)
+
+            spinfoam_contract!(contracted_spinfoam, lower_bound, upper_bound, i1_range, total_radial_spins_combinations, spins_configurations, j1, j2, j3, j4, Dl, immirzi)
+
+        end
 
     end
 
-    push!(column_labels, "j0 = $(conf.j0_float), jpm = $(conf.jpm_float)")
-
 end
-
-# store computational times
-df = DataFrame(computational_times, column_labels)
-CSV.write("$(comp_times_data_path)/immirzi_$(immirzi)_workers_$(number_of_workers)_threads_$(number_of_threads).csv", df)
 
 # release workers
 if (number_of_workers > 1)
@@ -113,4 +112,5 @@ if (number_of_workers > 1)
         rmprocs(i)
     end
 end
+
 printstyled("\nCompleted\n\n"; bold=true, color=:blue)
