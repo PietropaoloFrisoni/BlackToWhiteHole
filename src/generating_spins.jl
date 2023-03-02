@@ -36,9 +36,8 @@ function generating_spins(j0, K0, jpm, Kpm, base_folder, spinfoam_folder, immirz
       isempty(r4) && continue
       isempty(r5) && continue
 
-      number_of_radial_spins_combinations_for_this_angular_spin_combination += 1
-
       # must be computed
+      number_of_radial_spins_combinations_for_this_angular_spin_combination += 1
       push!(spins_configurations, (j12, j13, j14, j15, j23, j24, j25, j34, j35, j45))
       push!(intertwiners_range, (r1_range, r2_range, r3_range, r4_range, r5_range))
 
@@ -46,7 +45,7 @@ function generating_spins(j0, K0, jpm, Kpm, base_folder, spinfoam_folder, immirz
 
     if (number_of_radial_spins_combinations_for_this_angular_spin_combination > 0)
       counter_angular_spins_combinations += 1
-      mkpath(spinfoam_folder * "/j1_$(twice(j12)/2)_j2_$(twice(j13)/2)_j3_$(twice(j14)/2)_j4_$(twice(j15)/2)/immirzi_$(immirzi)")
+      mkpath("$(spinfoam_folder)/j1_$(twice(j12)/2)_j2_$(twice(j13)/2)_j3_$(twice(j14)/2)_j4_$(twice(j15)/2)/immirzi_$(immirzi)")
       resize!(spins_map, counter_angular_spins_combinations)
       spins_map[counter_angular_spins_combinations] = number_of_radial_spins_combinations_for_this_angular_spin_combination
     end

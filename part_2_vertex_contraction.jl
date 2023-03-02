@@ -86,6 +86,9 @@ for user_conf in angular_spins
             total_radial_spins_combinations = spins_map[current_angular_spins_comb]
             upper_bound = sum(spins_map[1:current_angular_spins_comb])
             lower_bound = upper_bound - total_radial_spins_combinations + 1
+            if (upper_bound-lower_bound+1 != total_radial_spins_combinations)
+                error("ops")
+            end
 
             j1 = twice(spins_configurations[lower_bound][1]) / 2
             j2 = twice(spins_configurations[lower_bound][2]) / 2
@@ -94,7 +97,7 @@ for user_conf in angular_spins
 
             i1_range = intertwiners_range[lower_bound][1]
 
-            total_elements = convert(Int, total_radial_spins_combinations * (total_radial_spins_combinations + 1) / 2)
+            total_elements = total_radial_spins_combinations^2 #convert(Int, total_radial_spins_combinations * (total_radial_spins_combinations + 1) / 2)
 
             contracted_spinfoam = Vector{ComplexF64}(undef, total_elements)
 

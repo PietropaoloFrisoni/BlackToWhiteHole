@@ -27,7 +27,7 @@ function init_config(user_conf, data_folder_path::String, contracted_spinfoam_fo
     intermediate_path_data_folder = "/data/spinfoam_data/j0=$(j0_float)_jpm=$(jpm_float)"
 
     # where spins_conf, spins_map and intertwiner_range are stored
-    base_folder = "$(data_folder_path)/$(intermediate_path_data_folder)"
+    base_folder = "$(data_folder_path)/$(intermediate_path_data_folder)/K0_$(twice(K0)/2)_Kpm_$(twice(Kpm)/2)"
 
     # where ??? is stored
     spinfoam_folder = "$(base_folder)/spinfoam"

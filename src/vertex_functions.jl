@@ -73,7 +73,7 @@ function spinfoam_contract!(contracted_spinfoam, lower_bound, upper_bound, i1_ra
     counter = 0
 
     for index1 = 1:total_radial_spins_combinations                         # @inbounds
-        for index2 = index1:total_radial_spins_combinations                # @inbounds
+        for index2 = 1:total_radial_spins_combinations     #index1:total_radial_spins_combinations                # @inbounds
 
             s = 0.0 + 0.0 * im
 
