@@ -86,9 +86,6 @@ for user_conf in angular_spins
             total_radial_spins_combinations = spins_map[current_angular_spins_comb]
             upper_bound = sum(spins_map[1:current_angular_spins_comb])
             lower_bound = upper_bound - total_radial_spins_combinations + 1
-            if (upper_bound-lower_bound+1 != total_radial_spins_combinations)
-                error("ops")
-            end
 
             j1 = twice(spins_configurations[lower_bound][1]) / 2
             j2 = twice(spins_configurations[lower_bound][2]) / 2
@@ -96,12 +93,15 @@ for user_conf in angular_spins
             j4 = twice(spins_configurations[lower_bound][4]) / 2
 
             i1_range = intertwiners_range[lower_bound][1]
+            total_elements = total_radial_spins_combinations^2
 
-            total_elements = total_radial_spins_combinations^2 #convert(Int, total_radial_spins_combinations * (total_radial_spins_combinations + 1) / 2)
-
+            coherent_matrix_up = Array{ComplexF64,2}(undef, i1_range, total_radial_spins_combinations)
+            coherent_matrix_down = Array{ComplexF64,2}(undef, i1_range, total_radial_spins_combinations)
             contracted_spinfoam = Vector{ComplexF64}(undef, total_elements)
 
-            SpinfoamContract!(contracted_spinfoam, lower_bound, upper_bound, i1_range, total_radial_spins_combinations, spins_configurations, j1, j2, j3, j4, Dl, immirzi)
+            SpinfoamContractUp!(coherent_matrix_up, lower_bound, upper_bound, i1_range, spins_configurations, Dl)
+            SpinfoamContractDown!(coherent_matrix_down, lower_bound, upper_bound, i1_range, spins_configurations, Dl)
+            SpinfoamFinalContraction!(contracted_spinfoam, coherent_matrix_up, coherent_matrix_down, i1_range, total_radial_spins_combinations, j1, j2, j3, j4, Dl, immirzi)
 
         end
 
