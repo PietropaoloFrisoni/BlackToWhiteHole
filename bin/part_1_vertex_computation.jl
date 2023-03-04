@@ -6,27 +6,27 @@ using Distributed
 @eval @everywhere number_of_threads = Threads.nthreads()
 
 # folder where data are stored
-@eval @everywhere data_folder_path = "./" #$(ARGS[1])
+@eval @everywhere data_folder_path = $(ARGS[1])
 
-# folder with fastwig tables to initialize the library
-@eval @everywhere sl2cfoam_next_data_folder = "/home/frisus/Scrivania/sl2cfoam-next-dev/data_sl2cfoam" #$(ARGS[2])
+# folder with fastwigxj tables to initialize the library
+@eval @everywhere sl2cfoam_next_data_folder = $(ARGS[2])
 
 printstyled("\nBlack-to-White hole amplitude parallelized on $(number_of_workers) worker(s)\n\n"; bold=true, color=:blue)
 
 println("precompiling packages...")
 @everywhere begin
-    include("inc/pkgs.jl")
+    include("../inc/pkgs.jl")
 end
 println("done\n")
 
 println("precompiling source code...")
 @everywhere begin
-    include("parameters.jl")
-    include("src/init.jl")
-    include("src/utilities.jl")
-    include("src/check.jl")
-    include("src/vertex_functions.jl")
-    include("src/generating_spins.jl")
+    include("../parameters.jl")
+    include("../src/init.jl")
+    include("../src/utilities.jl")
+    include("../src/check.jl")
+    include("../src/vertex_functions.jl")
+    include("../src/generating_spins.jl")
 end
 println("done\n")
 

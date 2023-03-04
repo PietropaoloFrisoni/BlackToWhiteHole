@@ -9,3 +9,5 @@ A full list of the employed Julia packages can be found in `./inc/pkgs.jl`. **Be
 ## Usage
 
 TODO
+
+/home/frisus/Scrivania/julia-1.8.1/bin/julia bin/part_2_vertex_contraction.jl ./ /home/frisus/Scrivania/sl2cfoam-next-dev/data_sl2cfoam
