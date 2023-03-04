@@ -1,5 +1,5 @@
 # preliminary check
-function check_on_preliminary_parameters(data_folder_path::String, sl2cfoam_next_data_folder::String, Dl_min::Int64, Dl_max::Int64, number_of_workers::Int, number_of_threads::Int)
+function CheckPreliminaryParameters(data_folder_path::String, sl2cfoam_next_data_folder::String, Dl_min::Int64, Dl_max::Int64, number_of_workers::Int, number_of_threads::Int)
 
     if (number_of_workers * number_of_threads > length(Sys.cpu_info()))
         printstyled("WARNING: you are using more resources than available cores on this system. Performances will be affected\n\n"; bold=true, color=:red)
@@ -31,7 +31,7 @@ end
 
 
 # check each input configuration
-function check_configuration!(user_conf)
+function CheckConfiguration!(user_conf)
 
     j = user_conf[1]
 

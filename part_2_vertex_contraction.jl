@@ -31,7 +31,7 @@ end
 println("done\n")
 
 println("checking configurations to compute...")
-check_on_preliminary_parameters(data_folder_path, sl2cfoam_next_data_folder, Dl_min, Dl_max, number_of_workers, number_of_threads)
+CheckPreliminaryParameters(data_folder_path, sl2cfoam_next_data_folder, Dl_min, Dl_max, number_of_workers, number_of_threads)
 
 @everywhere begin
     task_id = myid()
@@ -39,13 +39,13 @@ check_on_preliminary_parameters(data_folder_path, sl2cfoam_next_data_folder, Dl_
     number_conf = size(angular_spins)[1]
 
     for user_conf in angular_spins
-        check_configuration!(user_conf)
+        CheckConfiguration!(user_conf)
     end
 end
 println("done\n")
 
 println("Initializing sl2cfoam-next on each worker...")
-@everywhere init_sl2cfoam_next(immirzi, sl2cfoam_next_data_folder, number_of_threads, verbosity_flux)
+@everywhere InitSL2Cfoam(immirzi, sl2cfoam_next_data_folder, number_of_threads, verbosity_flux)
 println("done\n")
 
 current_date = now()
@@ -59,7 +59,7 @@ println("-----------------------------------------------------------------------
 
 for user_conf in angular_spins
 
-    conf = init_config(user_conf, data_folder_path)
+    conf = InitConfig(user_conf, data_folder_path)
     @eval @everywhere conf = $conf
 
     printstyled("\n\nStarting with configuration:\nj0=$(conf.j0), jpm=$(conf.jpm) ...\n\n"; bold=true, color=:bold)
@@ -101,7 +101,7 @@ for user_conf in angular_spins
 
             contracted_spinfoam = Vector{ComplexF64}(undef, total_elements)
 
-            spinfoam_contract!(contracted_spinfoam, lower_bound, upper_bound, i1_range, total_radial_spins_combinations, spins_configurations, j1, j2, j3, j4, Dl, immirzi)
+            SpinfoamContract!(contracted_spinfoam, lower_bound, upper_bound, i1_range, total_radial_spins_combinations, spins_configurations, j1, j2, j3, j4, Dl, immirzi)
 
         end
 

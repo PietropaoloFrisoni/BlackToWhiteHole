@@ -31,7 +31,7 @@ end
 println("done\n")
 
 println("checking configurations to compute...")
-check_on_preliminary_parameters(data_folder_path, sl2cfoam_next_data_folder, Dl_min, Dl_max, number_of_workers, number_of_threads)
+CheckPreliminaryParameters(data_folder_path, sl2cfoam_next_data_folder, Dl_min, Dl_max, number_of_workers, number_of_threads)
 
 @everywhere begin
     task_id = myid()
@@ -39,13 +39,13 @@ check_on_preliminary_parameters(data_folder_path, sl2cfoam_next_data_folder, Dl_
     number_conf = size(angular_spins)[1]
 
     for user_conf in angular_spins
-        check_configuration!(user_conf)
+        CheckConfiguration!(user_conf)
     end
 end
 println("done\n")
 
 println("Initializing sl2cfoam-next on each worker...")
-@everywhere init_sl2cfoam_next(immirzi, sl2cfoam_next_data_folder, number_of_threads, verbosity_flux)
+@everywhere InitSL2Cfoam(immirzi, sl2cfoam_next_data_folder, number_of_threads, verbosity_flux)
 println("done\n")
 
 current_date = now()
@@ -66,7 +66,7 @@ for user_conf in angular_spins
 
     global counter_df += 1
 
-    conf = init_config(user_conf, data_folder_path)
+    conf = InitConfig(user_conf, data_folder_path)
     @eval @everywhere conf = $conf
 
     printstyled("\n\nStarting with configuration:\nj0=$(conf.j0), jpm=$(conf.jpm) ...\n\n"; bold=true, color=:bold)
@@ -79,7 +79,7 @@ for user_conf in angular_spins
     printstyled("\nComputing spins combinations\n",
         "for angular spins in [$(conf.j0_float - conf.K0), $(conf.j0_float + conf.K0)] ",
         "and radial spins in [$(conf.jpm_float - conf.Kpm), $(conf.jpm_float + conf.Kpm)] ...\n\n"; bold=true, color=:cyan)
-    generating_spins(conf.j0, conf.K0, conf.jpm, conf.Kpm, conf.base_folder, conf.spinfoam_folder, immirzi, verbosity_flux)
+    GeneratingSpins(conf.j0, conf.K0, conf.jpm, conf.Kpm, conf.base_folder, conf.spinfoam_folder, immirzi, verbosity_flux)
 
     #####################################################################################################################################
     ### COMPUTING VERTICES
@@ -93,7 +93,7 @@ for user_conf in angular_spins
 
         printstyled("\nCurrent Dl=$(Dl)...\n"; bold=true, color=:magenta)
 
-        seconds_required = @elapsed vertex_distributed_single_machine(spins_configurations, Dl, (true, true))
+        seconds_required = @elapsed VertexDistributeSingleMachine(spins_configurations, Dl, (true, true))
         println("done. Time required: $(seconds_required) seconds\n")
         computational_times[Dl+1, counter_df] = seconds_required
 
@@ -113,4 +113,5 @@ if (number_of_workers > 1)
         rmprocs(i)
     end
 end
+
 printstyled("\nCompleted\n\n"; bold=true, color=:blue)

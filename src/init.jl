@@ -14,7 +14,7 @@ mutable struct Configuration
 
 end
 
-function init_config(user_conf, data_folder_path::String, contracted_spinfoam_found::Bool=false)
+function InitConfig(user_conf, data_folder_path::String, contracted_spinfoam_found::Bool=false)
 
     j0_float = user_conf[1]
     jpm_float = user_conf[2]
@@ -40,7 +40,7 @@ function init_config(user_conf, data_folder_path::String, contracted_spinfoam_fo
 
 end
 
-function init_sl2cfoam_next(immirzi, sl2cfoam_next_data_folder, number_of_threads, verbosity_flux)
+function InitSL2Cfoam(immirzi, sl2cfoam_next_data_folder, number_of_threads, verbosity_flux)
 
     isMPI = @ccall SL2Cfoam.clib.sl2cfoam_is_MPI()::Bool
     isMPI && error("MPI version not allowed")

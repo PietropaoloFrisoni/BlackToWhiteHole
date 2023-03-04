@@ -1,5 +1,5 @@
 # generate a list of all spins to compute and make folders
-function generating_spins(j0, K0, jpm, Kpm, base_folder, spinfoam_folder, immirzi, verbosity_flux, onehalf=half(1))
+function GeneratingSpins(j0, K0, jpm, Kpm, base_folder, spinfoam_folder, immirzi, verbosity_flux, onehalf=half(1))
 
   spins_configurations = NTuple{10,HalfInt8}[]
   intertwiners_range = NTuple{5,Int8}[]
