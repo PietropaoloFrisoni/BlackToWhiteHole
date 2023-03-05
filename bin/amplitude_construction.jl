@@ -104,12 +104,16 @@ for user_conf in angular_spins
             j3 = twice(spins_configurations[lower_bound][3]) / 2
             j4 = twice(spins_configurations[lower_bound][4]) / 2
 
+            path_contracted_spinfoam = "$(conf.spinfoam_folder)/j1_$(j1)_j2_$(j2)_j3_$(j3)_j4_$(j4)/immirzi_$(immirzi)/Dl_$(Dl)"
+            @load "$(path_contracted_spinfoam)/contracted_spinfoam.jld2" contracted_spinfoam
+
             i1_range = intertwiners_range[lower_bound][1]
             total_elements = total_radial_spins_combinations^2
 
-            data_vector = Array{ComplexF64,1}(undef, number_of_T_points)
+            amplitude_vector = Array{ComplexF64,1}(undef, number_of_T_points)
 
-            #GetTPoints!(...)
+            get_T_points!(amplitude_vector, contracted_spinfoam, alpha, conf.j0_float, conf.jpm_float, m, T_range, immirzi, spins_configurations,
+    lower_bound, upper_bound, path_contracted_spinfoam, j1, j2, j3, j4)
 
         end
 

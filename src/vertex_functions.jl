@@ -153,6 +153,6 @@ function SpinfoamFinalContraction!(contracted_spinfoam, coherent_matrix_up, cohe
         
     end
 
-    @save "$(path_contracted_spinfoam)/contracted_spinfoam" contracted_spinfoam
+    @save "$(path_contracted_spinfoam)/contracted_spinfoam.jld2" contracted_spinfoam
 
 end

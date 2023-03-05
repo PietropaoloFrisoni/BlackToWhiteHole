@@ -1,5 +1,5 @@
-function get_T_points!(data_vector, contracted_spinfoam, alpha, j0, jpm, m, T_range, Immirzi, spins_configurations,
-    lower_bound, upper_bound, j1, j2, j3, j4, spinfoam_folder, total_T_points, Dl)
+function get_T_points!(amplitude_vector, contracted_spinfoam, alpha, j0, jpm, m, T_range, Immirzi, spins_configurations,
+    lower_bound, upper_bound, path_contracted_spinfoam, j1, j2, j3, j4)
 
     zita_plus = -32 * sqrt(6) / 9
     zita_minus = 32 * sqrt(6) / 9
@@ -19,7 +19,7 @@ function get_T_points!(data_vector, contracted_spinfoam, alpha, j0, jpm, m, T_ra
                          pre_fact_angul_1^((j1 - j0)^2) * pre_fact_angul_1^((j2 - j0)^2) *
                          pre_fact_angul_1^((j3 - j0)^2) * pre_fact_angul_1^((j4 - j0)^2)
 
-        data_vector[T_index] = 0.0 + 0.0 * im
+        amplitude_vector[T_index] = 0.0 + 0.0 * im
 
         counter = 0
 
@@ -39,7 +39,7 @@ function get_T_points!(data_vector, contracted_spinfoam, alpha, j0, jpm, m, T_ra
                                   pre_fact_minus^(j12_minus) * pre_fact_minus^(j13_minus) * pre_fact_minus^(j14_minus) *
                                   pre_fact_minus^(j23_minus) * pre_fact_minus^(j24_minus) * pre_fact_minus^(j34_minus)
 
-            @inbounds for index_plus = index_minus:upper_bound
+            @inbounds for index_plus = lower_bound:upper_bound
 
                 counter += 1
 
@@ -59,7 +59,7 @@ function get_T_points!(data_vector, contracted_spinfoam, alpha, j0, jpm, m, T_ra
 
                 radial_factor = minus_radial_factor * plus_radial_factor
 
-                data_vector[T_index] += radial_factor * angular_factor * contracted_spinfoam[counter]
+                amplitude_vector[T_index] += radial_factor * angular_factor * contracted_spinfoam[counter]
 
             end
 
@@ -67,10 +67,6 @@ function get_T_points!(data_vector, contracted_spinfoam, alpha, j0, jpm, m, T_ra
 
     end
 
-    if (total_T_points == 1)
-        @save "$(spinfoam_folder)/j1_$(j1)_j2_$(j2)_j3_$(j3)_j4_$(j4)/Immirzi_$(Immirzi)/Dl=$(Dl)/data_vector_alpha_$(alpha)_Tc_Dl_$(Dl).jld2" data_vector
-    else
-        @save "$(spinfoam_folder)/j1_$(j1)_j2_$(j2)_j3_$(j3)_j4_$(j4)/Immirzi_$(Immirzi)/Dl=$(Dl)/data_vector_alpha_$(alpha)_T_range_$(total_T_points)_Dl_$(Dl).jld2" data_vector
-    end
+    @save "$(path_contracted_spinfoam)/amplitude_vector_alpha_$(alpha).jld2" amplitude_vector
 
 end
