@@ -132,7 +132,7 @@ function SpinfoamContractDown!(coherent_matrix_down, lower_bound, upper_bound, i
 end
 
 # contracts the upper and lower coherent matrices
-function SpinfoamFinalContraction!(contracted_spinfoam, coherent_matrix_up, coherent_matrix_down, i1_range, total_radial_spins_combinations, j1, j2, j3, j4, Dl, immirzi)
+function SpinfoamFinalContraction!(contracted_spinfoam, coherent_matrix_up, coherent_matrix_down, i1_range, total_radial_spins_combinations, path_contracted_spinfoam)
 
     counter = 0
 
@@ -153,6 +153,6 @@ function SpinfoamFinalContraction!(contracted_spinfoam, coherent_matrix_up, cohe
         
     end
 
-    @save "$(conf.spinfoam_folder)/j1_$(j1)_j2_$(j2)_j3_$(j3)_j4_$(j4)/immirzi_$(immirzi)/contracted_spinfoam_Dl_$(Dl).jld2" contracted_spinfoam
+    @save "$(path_contracted_spinfoam)/contracted_spinfoam" contracted_spinfoam
 
 end

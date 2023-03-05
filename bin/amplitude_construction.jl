@@ -11,6 +11,9 @@ using Distributed
 # folder with fastwigxj tables to initialize the library
 @eval @everywhere sl2cfoam_next_data_folder = $(ARGS[2])
 
+# number of points to plot amplitude as function of T
+@eval @everywhere T_sampling_parameter = parse(Int, ARGS[3])
+
 printstyled("\nBlack-to-White hole amplitude parallelized on $(number_of_workers) worker(s)\n\n"; bold=true, color=:blue)
 
 println("precompiling packages...")
@@ -26,6 +29,7 @@ println("precompiling source code...")
     include("../src/utilities.jl")
     include("../src/check.jl")
     include("../src/vertex_functions.jl")
+    include("../src/amplitude.jl")
     include("../src/generating_spins.jl")
 end
 println("done\n")
@@ -65,10 +69,10 @@ for user_conf in angular_spins
     sleep(1)
 
     #####################################################################################################################################
-    ### CONTRACTING VERTICES
+    ### ASSEMBLING BLACK-TO-WHITE AMPLITUDE
     #####################################################################################################################################
 
-    printstyled("\nContracting vertices...\n"; bold=true, color=:blue)
+    printstyled("\nAssembling B-W amplitude...\n"; bold=true, color=:blue)
 
     @everywhere begin
         @load "$(conf.base_folder)/spins_configurations.jld2" spins_configurations
@@ -76,9 +80,18 @@ for user_conf in angular_spins
         @load "$(conf.base_folder)/intertwiners_range.jld2" intertwiners_range
     end
 
+    m = sqrt(conf.j0_float * immirzi)
+    T_range = LinRange(0, 4 * pi * m / immirzi, T_sampling_parameter + 1)
+    number_of_T_points = size(T_range)[1]
+
     for Dl = Dl_min:Dl_max
 
         printstyled("\nCurrent Dl=$(Dl)...\n"; bold=true, color=:magenta)
+
+        # Dataframes in which the amplitudes will be stored at the end       
+        BW_amplitudes = Array{ComplexF64,2}(undef, number_of_T_points + 1, number_conf)
+        BW_amplitudes_abs_sq = Array{Float64,2}(undef, number_of_T_points + 1, number_conf)
+        BW_amplitudes_abs_sq_integrated = Array{Float64,2}(undef, 1, number_conf)
 
         @time @sync @distributed for current_angular_spins_comb in eachindex(spins_map)
 
@@ -94,17 +107,14 @@ for user_conf in angular_spins
             i1_range = intertwiners_range[lower_bound][1]
             total_elements = total_radial_spins_combinations^2
 
-            coherent_matrix_up = Array{ComplexF64,2}(undef, i1_range, total_radial_spins_combinations)
-            coherent_matrix_down = Array{ComplexF64,2}(undef, i1_range, total_radial_spins_combinations)
-            contracted_spinfoam = Vector{ComplexF64}(undef, total_elements)
+            data_vector = Array{ComplexF64,1}(undef, number_of_T_points)
 
-            SpinfoamContractUp!(coherent_matrix_up, lower_bound, upper_bound, i1_range, spins_configurations, Dl)
-            SpinfoamContractDown!(coherent_matrix_down, lower_bound, upper_bound, i1_range, spins_configurations, Dl)
-            SpinfoamFinalContraction!(contracted_spinfoam, coherent_matrix_up, coherent_matrix_down, i1_range, total_radial_spins_combinations, j1, j2, j3, j4, Dl, immirzi)
+            #GetTPoints!(...)
 
         end
 
     end
+
 
 end
 
