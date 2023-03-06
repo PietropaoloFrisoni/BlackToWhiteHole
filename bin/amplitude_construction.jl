@@ -69,7 +69,7 @@ for user_conf in angular_spins
     sleep(1)
 
     #####################################################################################################################################
-    ### ASSEMBLING BLACK-TO-WHITE AMPLITUDE
+    ### ASSEMBLING BLACK-TO-WHITE HOLE AMPLITUDE
     #####################################################################################################################################
 
     printstyled("\nAssembling B-W amplitude...\n"; bold=true, color=:blue)
@@ -81,7 +81,7 @@ for user_conf in angular_spins
     end
 
     m = sqrt(conf.j0_float * immirzi)
-    T_range = LinRange(0, 4 * pi * m / immirzi, T_sampling_parameter + 1)
+    T_range = LinRange(0, 4 * pi * m / immirzi, T_sampling_parameter)
     number_of_T_points = size(T_range)[1]
 
     for Dl = Dl_min:Dl_max
@@ -105,20 +105,58 @@ for user_conf in angular_spins
             j4 = twice(spins_configurations[lower_bound][4]) / 2
 
             path_contracted_spinfoam = "$(conf.spinfoam_folder)/j1_$(j1)_j2_$(j2)_j3_$(j3)_j4_$(j4)/immirzi_$(immirzi)/Dl_$(Dl)"
+            path_amplitude = "$(path_contracted_spinfoam)/alpha_$(alpha)"
+            mkpath("$(path_amplitude)")
             @load "$(path_contracted_spinfoam)/contracted_spinfoam.jld2" contracted_spinfoam
 
             i1_range = intertwiners_range[lower_bound][1]
             total_elements = total_radial_spins_combinations^2
 
-            amplitude_vector = Array{ComplexF64,1}(undef, number_of_T_points)
+            amplitude = Array{ComplexF64,1}(undef, number_of_T_points)
 
-            get_T_points!(amplitude_vector, contracted_spinfoam, alpha, conf.j0_float, conf.jpm_float, m, T_range, immirzi, spins_configurations,
-    lower_bound, upper_bound, path_contracted_spinfoam, j1, j2, j3, j4)
+            get_T_points!(amplitude, contracted_spinfoam, alpha, conf.j0_float, conf.jpm_float, m, T_range, immirzi, spins_configurations,
+                lower_bound, upper_bound, path_contracted_spinfoam, j1, j2, j3, j4)
+
+        end
+
+        printstyled("\nSumming over angular spins...\n"; bold=true, color=:cyan)
+
+        final_amplitude = Array{ComplexF64,1}(undef, number_of_T_points)
+        final_amplitude_abs_sq = Array{Float64,1}(undef, number_of_T_points)
+
+        for T_index in eachindex(T_range)
+            final_amplitude[T_index] = 0.0 + 0.0 * im
+            final_amplitude_abs_sq[T_index] = 0.0
+        end
+
+        @time @inbounds for current_angular_spins_comb in eachindex(spins_map)
+
+            total_radial_spins_combinations = spins_map[current_angular_spins_comb]
+            upper_bound = sum(spins_map[1:current_angular_spins_comb])
+            lower_bound = upper_bound - total_radial_spins_combinations + 1
+
+            j1 = twice(spins_configurations[lower_bound][1]) / 2
+            j2 = twice(spins_configurations[lower_bound][2]) / 2
+            j3 = twice(spins_configurations[lower_bound][3]) / 2
+            j4 = twice(spins_configurations[lower_bound][4]) / 2
+
+            path_contracted_spinfoam = "$(conf.spinfoam_folder)/j1_$(j1)_j2_$(j2)_j3_$(j3)_j4_$(j4)/immirzi_$(immirzi)/Dl_$(Dl)"
+            path_amplitude = "$(path_contracted_spinfoam)/alpha_$(alpha)"
+            @load "$(path_amplitude)/amplitude_T_$(number_of_T_points).jld2" amplitude
+
+            for T_index in eachindex(T_range)
+
+                if (isnan(amplitude[T_index]))
+                    println("NaN for con with j1_$(j1)_j2_$(j2)_j3_$(j3)_j4_$(j4) at index $(T_index)")
+                end
+
+                final_amplitude[T_index] += amplitude[T_index]
+
+            end
 
         end
 
     end
-
 
 end
 

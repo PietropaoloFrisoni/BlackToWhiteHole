@@ -1,4 +1,4 @@
-function get_T_points!(amplitude_vector, contracted_spinfoam, alpha, j0, jpm, m, T_range, Immirzi, spins_configurations,
+function get_T_points!(amplitude, contracted_spinfoam, alpha, j0, jpm, m, T_range, Immirzi, spins_configurations,
     lower_bound, upper_bound, path_contracted_spinfoam, j1, j2, j3, j4)
 
     zita_plus = -32 * sqrt(6) / 9
@@ -19,7 +19,7 @@ function get_T_points!(amplitude_vector, contracted_spinfoam, alpha, j0, jpm, m,
                          pre_fact_angul_1^((j1 - j0)^2) * pre_fact_angul_1^((j2 - j0)^2) *
                          pre_fact_angul_1^((j3 - j0)^2) * pre_fact_angul_1^((j4 - j0)^2)
 
-        amplitude_vector[T_index] = 0.0 + 0.0 * im
+        amplitude[T_index] = 0.0 + 0.0 * im
 
         counter = 0
 
@@ -59,7 +59,7 @@ function get_T_points!(amplitude_vector, contracted_spinfoam, alpha, j0, jpm, m,
 
                 radial_factor = minus_radial_factor * plus_radial_factor
 
-                amplitude_vector[T_index] += radial_factor * angular_factor * contracted_spinfoam[counter]
+                amplitude[T_index] += radial_factor * angular_factor * contracted_spinfoam[counter]
 
             end
 
@@ -67,6 +67,6 @@ function get_T_points!(amplitude_vector, contracted_spinfoam, alpha, j0, jpm, m,
 
     end
 
-    @save "$(path_contracted_spinfoam)/amplitude_vector_alpha_$(alpha).jld2" amplitude_vector
+    @save "$(path_contracted_spinfoam)/alpha_$(alpha)/amplitude_T_$(size(T_range)[1]).jld2" amplitude
 
 end

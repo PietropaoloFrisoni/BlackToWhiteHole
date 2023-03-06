@@ -50,7 +50,7 @@ println("done\n")
 
 current_date = now()
 data_folder_path = "$(data_folder_path)"
-comp_times_data_path = "$(data_folder_path)/data/computational_times/vertex_computations/run_started_on:$(current_date)"
+comp_times_data_path = "$(data_folder_path)/data/computational_times/run_started_on:$(current_date)"
 mkpath(comp_times_data_path)
 
 println("-------------------------------------------------------------------------\n")
