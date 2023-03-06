@@ -60,6 +60,8 @@ println("-----------------------------------------------------------------------
 printstyled("Starting computations\n\n"; bold=true, color=:blue)
 println("-------------------------------------------------------------------------")
 
+# TODO: RIVEDERE TUTTA LA STRUTTURA
+
 for user_conf in angular_spins
 
     conf = InitConfig(user_conf, data_folder_path)
@@ -88,7 +90,10 @@ for user_conf in angular_spins
 
         printstyled("\nCurrent Dl=$(Dl)...\n"; bold=true, color=:magenta)
 
-        # Dataframes in which the amplitudes will be stored at the end       
+        column_labels = String[]
+        counter_df = 0
+
+        # Dataframes with final amplitudes     
         BW_amplitudes = Array{ComplexF64,2}(undef, number_of_T_points + 1, number_conf)
         BW_amplitudes_abs_sq = Array{Float64,2}(undef, number_of_T_points + 1, number_conf)
         BW_amplitudes_abs_sq_integrated = Array{Float64,2}(undef, 1, number_conf)
@@ -129,7 +134,7 @@ for user_conf in angular_spins
             final_amplitude_abs_sq[T_index] = 0.0
         end
 
-        @time @inbounds for current_angular_spins_comb in eachindex(spins_map)
+        @time for current_angular_spins_comb in eachindex(spins_map)
 
             total_radial_spins_combinations = spins_map[current_angular_spins_comb]
             upper_bound = sum(spins_map[1:current_angular_spins_comb])
@@ -155,6 +160,38 @@ for user_conf in angular_spins
             end
 
         end
+
+        # TODO: move this inside a function
+        for T_index in eachindex(T_range)
+            final_amplitude_abs_sq[T_index] = abs(final_amplitude[T_index])^(2)
+        end
+
+        Delta_x = T_range[2] - T_range[1]
+        amp = 0.0
+        amp_T = 0.0
+
+        for T_index in eachindex(T_range)
+            if (T_index == 1)
+                amp += final_amplitude_abs_sq[T_index]
+                amp_T += final_amplitude_abs_sq_T[T_index]
+            end
+            amp += 2 * final_amplitude_abs_sq[T_index]
+            amp_T += 2 * final_amplitude_abs_sq_T[T_index]
+            if (T_index == number_of_T_points)
+                amp += final_amplitude_abs_sq[T_index]
+                amp_T += final_amplitude_abs_sq_T[T_index]
+            end
+        end
+
+        integrated_amplitude = (Delta_x / 2) * amp
+        integrated_amplitude_T = (Delta_x / 2) * amp_T
+
+        counter_df += 1
+        push!(column_labels, "m = $(m)")
+
+        BW_amplitudes[:, counter_df] = final_amplitude[:]
+        BW_amplitudes_abs_sq[:, counter_df] = final_amplitude_abs_sq[:]
+        BW_amplitudes_abs_sq_integrated[1, counter_df] = integrated_amplitude
 
     end
 

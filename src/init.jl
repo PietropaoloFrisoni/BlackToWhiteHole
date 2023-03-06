@@ -27,8 +27,8 @@ function InitConfig(user_conf, data_folder_path::String, contracted_spinfoam_fou
     # where spins_conf, spins_map and intertwiner_range are stored
     base_folder = "$(data_folder_path)/data/amplitude_data/j0=$(j0_float)_jpm=$(jpm_float)/K0_$(twice(K0)/2)_Kpm_$(twice(Kpm)/2)"
 
-    # where contracted spinfoams array is stored
-    spinfoam_folder = "$(base_folder)/spinfoam"
+    # subfolder with all angular spins combinations
+    spinfoam_folder = "$(base_folder)/angular_spins"
 
     conf = Configuration(j0, j0_float, K0, jpm, jpm_float, Kpm,
         contracted_spinfoam_found,
