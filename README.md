@@ -30,10 +30,8 @@ $$
 
 The computation is divided into multiple steps:
 
-- `vertex_computation.jl` computes all the full vertex tensors required
+- `vertex_computation.jl` computes all the full vertex tensors required.
 
-- `vertex_contraction.jl` computes the term:
+- `vertex_contraction.jl` computes the term: $ \left( \sum_{i_5} d_{i_5} \prod_{\pm} V_{\gamma,  n_{f}^{\pm}}^{coh} \left(j_{ab}^{\pm}, j_{a}, i_5; \Delta l \right) \right) $ for fixed values of $j_{ab}^{\pm}, j_{a}$
 
-$$
-\left( \sum_{i_5} d_{i_5} \prod_{\pm} V_{\gamma,  n_{f}^{\pm}}^{coh} \left(j_{ab}^{\pm}, j_{a}, i_5; \Delta l \right) \right) 
-$$
+- `....jl` computes the weight factor $w_{\alpha}$ for fixed values of $j_{ab}^{\pm}, j_{a}$, as well as the measure coefficient for the extrinsic coherent states
