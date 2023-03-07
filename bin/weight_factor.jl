@@ -11,6 +11,9 @@ using Distributed
 # folder with fastwigxj tables to initialize the library
 @eval @everywhere sl2cfoam_next_data_folder = $(ARGS[2])
 
+# number of points to plot amplitude as function of T
+@eval @everywhere T_sampling_parameter = parse(Int, ARGS[3])
+
 printstyled("\nBlack-to-White hole amplitude parallelized on $(number_of_workers) worker(s)\n\n"; bold=true, color=:blue)
 
 println("precompiling packages...")
@@ -26,6 +29,7 @@ println("precompiling source code...")
     include("../src/utilities.jl")
     include("../src/check.jl")
     include("../src/vertex_functions.jl")
+    include("../src/amplitude.jl")
     include("../src/generating_spins.jl")
 end
 println("done\n")
@@ -48,6 +52,10 @@ println("Initializing sl2cfoam-next on each worker...")
 @everywhere InitSL2Cfoam(immirzi, sl2cfoam_next_data_folder, number_of_threads, verbosity_flux)
 println("done\n")
 
+current_date = now()
+comp_times_data_path = "$(data_folder_path)/data/computational_times/vertex_computations/run_started_on:$(current_date)"
+mkpath(comp_times_data_path)
+
 println("-------------------------------------------------------------------------\n")
 printstyled("Starting computations\n\n"; bold=true, color=:blue)
 println("-------------------------------------------------------------------------")
@@ -61,10 +69,10 @@ for user_conf in angular_spins
     sleep(1)
 
     #####################################################################################################################################
-    ### CONTRACTING VERTICES
+    ### COMPUTING THE WEIGHT FACTOR
     #####################################################################################################################################
 
-    printstyled("\nContracting vertices...\n"; bold=true, color=:blue)
+    printstyled("\nComputing the weight factor...\n"; bold=true, color=:blue)
 
     @everywhere begin
         @load "$(conf.base_folder)/spins_configurations.jld2" spins_configurations
@@ -72,38 +80,32 @@ for user_conf in angular_spins
         @load "$(conf.base_folder)/intertwiners_range.jld2" intertwiners_range
     end
 
-    for Dl = Dl_min:Dl_max
+    m = sqrt(conf.j0_float * immirzi)
+    T_range = LinRange(0, 4 * pi * m / immirzi, T_sampling_parameter)
+    number_of_T_points = T_sampling_parameter
 
-        printstyled("\nCurrent Dl=$(Dl)...\n"; bold=true, color=:magenta)
+    @time @sync @distributed for current_angular_spins_comb in eachindex(spins_map)
 
-        @time @sync @distributed for current_angular_spins_comb in eachindex(spins_map)
+        total_radial_spins_combinations = spins_map[current_angular_spins_comb]
+        upper_bound = sum(spins_map[1:current_angular_spins_comb])
+        lower_bound = upper_bound - total_radial_spins_combinations + 1
 
-            total_radial_spins_combinations = spins_map[current_angular_spins_comb]
-            upper_bound = sum(spins_map[1:current_angular_spins_comb])
-            lower_bound = upper_bound - total_radial_spins_combinations + 1
+        j1 = twice(spins_configurations[lower_bound][1]) / 2
+        j2 = twice(spins_configurations[lower_bound][2]) / 2
+        j3 = twice(spins_configurations[lower_bound][3]) / 2
+        j4 = twice(spins_configurations[lower_bound][4]) / 2
 
-            j1 = twice(spins_configurations[lower_bound][1]) / 2
-            j2 = twice(spins_configurations[lower_bound][2]) / 2
-            j3 = twice(spins_configurations[lower_bound][3]) / 2
-            j4 = twice(spins_configurations[lower_bound][4]) / 2
+        path_weight_factor = "$(conf.spinfoam_folder)/j1_$(j1)_j2_$(j2)_j3_$(j3)_j4_$(j4)/immirzi_$(immirzi)/alpha_$(alpha)"
+        mkpath("$(path_weight_factor)")
 
-            path_contracted_spinfoam = "$(conf.spinfoam_folder)/j1_$(j1)_j2_$(j2)_j3_$(j3)_j4_$(j4)/immirzi_$(immirzi)/Dl_$(Dl)"
-            mkpath(path_contracted_spinfoam)
+        total_elements = total_radial_spins_combinations^2
 
-            i1_range = intertwiners_range[lower_bound][1]
-            total_elements = total_radial_spins_combinations^2
+        weight_factor = Array{ComplexF64,2}(undef, total_elements, number_of_T_points)
 
-            coherent_matrix_up = Array{ComplexF64,2}(undef, i1_range, total_radial_spins_combinations)
-            coherent_matrix_down = Array{ComplexF64,2}(undef, i1_range, total_radial_spins_combinations)
-            contracted_spinfoam = Vector{ComplexF64}(undef, total_elements)
+        WeightFactor!(weight_factor, alpha, conf.j0_float, conf.jpm_float, m, T_range, immirzi, spins_configurations,
+            lower_bound, upper_bound, j1, j2, j3, j4)
 
-            SpinfoamContractUp!(coherent_matrix_up, lower_bound, upper_bound, i1_range, spins_configurations, Dl)
-            SpinfoamContractDown!(coherent_matrix_down, lower_bound, upper_bound, i1_range, spins_configurations, Dl)
-            SpinfoamFinalContraction!(contracted_spinfoam, coherent_matrix_up, coherent_matrix_down, i1_range, total_radial_spins_combinations)
-
-            @save "$(path_contracted_spinfoam)/contracted_spinfoam.jld2" contracted_spinfoam
-
-        end
+        @save "$(path_weight_factor)/weight_factor_T_$(number_of_T_points).jld2" weight_factor
 
     end
 

@@ -1,5 +1,5 @@
-function get_T_points!(amplitude, contracted_spinfoam, alpha, j0, jpm, m, T_range, Immirzi, spins_configurations,
-    lower_bound, upper_bound, path_contracted_spinfoam, j1, j2, j3, j4)
+function WeightFactor!(weight_factor, alpha, j0, jpm, m, T_range, Immirzi, spins_configurations,
+    lower_bound, upper_bound, j1, j2, j3, j4)
 
     zita_plus = -32 * sqrt(6) / 9
     zita_minus = 32 * sqrt(6) / 9
@@ -19,7 +19,7 @@ function get_T_points!(amplitude, contracted_spinfoam, alpha, j0, jpm, m, T_rang
                          pre_fact_angul_1^((j1 - j0)^2) * pre_fact_angul_1^((j2 - j0)^2) *
                          pre_fact_angul_1^((j3 - j0)^2) * pre_fact_angul_1^((j4 - j0)^2)
 
-        amplitude[T_index] = 0.0 + 0.0 * im
+        weight_factor[:, T_index] .= 0.0 + 0.0 * im
 
         counter = 0
 
@@ -59,14 +59,12 @@ function get_T_points!(amplitude, contracted_spinfoam, alpha, j0, jpm, m, T_rang
 
                 radial_factor = minus_radial_factor * plus_radial_factor
 
-                amplitude[T_index] += radial_factor * angular_factor * contracted_spinfoam[counter]
+                weight_factor[counter, T_index] += radial_factor * angular_factor
 
             end
 
         end
 
     end
-
-    @save "$(path_contracted_spinfoam)/alpha_$(alpha)/amplitude_T_$(size(T_range)[1]).jld2" amplitude
 
 end

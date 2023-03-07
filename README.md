@@ -25,13 +25,27 @@ where [N-1] is the number of workers and:
 The code computes the Black-to-White hole transitin amplitude:
 
 $$
-W_{\alpha, n_f^{\pm}} (j_{\pm}, j_{0}, \zeta_{\pm}, \zeta_0; \Delta l) = \sum_{ j_{ab}^{\pm}, j_{a} } w_{\alpha} \left( \sum_{i_5} d_{i_5} \prod_{\pm} V_{\gamma,  n_{f}^{\pm}}^{coh} \left(j_{ab}^{\pm}, j_{a}, i_5; \Delta l \right) \right) \ .
+W_{\alpha} (j_{\pm}, j_{0}, \zeta_{\pm}, \zeta_0; \Delta l) = \sum_{ j_{ab}^{\pm}, j_{a} } w_{\alpha} \left( \sum_{i_5} d_{i_5} \prod_{\pm} V_{\gamma,  n_{f}^{\pm}}^{coh} \left(j_{ab}^{\pm}, j_{a}, i_5; \Delta l \right) \right) 
+$$
+
+and the crossing time:
+
+$$
+\tau_{\alpha} \left( m \right) = \int_{0}^{\infty} dT \  T \ P_{\alpha} \left( m | T \right)  \ ,
+$$
+
+where:
+
+$$
+P_{\alpha} \left( m | T \right) = \frac{\mu_{\alpha} (m, T) \ |W_{\alpha} (m , T )|^2}{\int_{0}^{\infty} dT \ \mu_{\alpha} (m, T) \ |W_{\alpha} (m, T)|^2} \ .
 $$
 
 The computation is divided into multiple steps:
 
-- `vertex_computation.jl` computes all the full vertex tensors required.
+- `vertex_computation.jl` computes all the required full vertex amplitude tensors.
 
-- `vertex_contraction.jl` computes the term: $\left( \sum_{i_5} d_{i_5} \prod_{\pm} V_{\gamma,  n_{f}^{\pm}}^{coh} \left(j_{ab}^{\pm}, j_{a}, i_5; \Delta l \right) \right)$ for fixed values of $j_{ab}^{\pm}, j_{a}$
+- `vertex_contraction.jl` computes the term: $\left( \sum_{i_5} d_{i_5} \prod_{\pm} V_{\gamma,  n_{f}^{\pm}}^{coh} \left(j_{ab}^{\pm}, j_{a}, i_5; \Delta l \right) \right)$ for each value of $j_{ab}^{\pm}, j_{a}$.
 
-- `....jl` computes the weight factor $w_{\alpha}$ for fixed values of $j_{ab}^{\pm}, j_{a}$, as well as the measure coefficient for the extrinsic coherent states
+- `weight_factor.jl` computes the weight factor $w_{\alpha}$ (whose expression is not explicitly reported here) for each value of $j_{ab}^{\pm}, j_{a}$ and $T_1 \dots T_N$. It requires the number $N$ of T samples as additional parameter.
+
+- TODO: continue from here...
