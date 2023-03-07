@@ -1,6 +1,5 @@
 using SL2Cfoam
 using JLD2
-using Distributed
 using DataFrames
 using ElasticArrays
 using Dates

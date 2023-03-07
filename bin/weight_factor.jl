@@ -28,9 +28,7 @@ println("precompiling source code...")
     include("../src/init.jl")
     include("../src/utilities.jl")
     include("../src/check.jl")
-    include("../src/vertex_functions.jl")
     include("../src/amplitude.jl")
-    include("../src/generating_spins.jl")
 end
 println("done\n")
 
@@ -47,14 +45,6 @@ CheckPreliminaryParameters(data_folder_path, sl2cfoam_next_data_folder, Dl_min, 
     end
 end
 println("done\n")
-
-println("Initializing sl2cfoam-next on each worker...")
-@everywhere InitSL2Cfoam(immirzi, sl2cfoam_next_data_folder, number_of_threads, verbosity_flux)
-println("done\n")
-
-current_date = now()
-comp_times_data_path = "$(data_folder_path)/data/computational_times/vertex_computations/run_started_on:$(current_date)"
-mkpath(comp_times_data_path)
 
 println("-------------------------------------------------------------------------\n")
 printstyled("Starting computations\n\n"; bold=true, color=:blue)
