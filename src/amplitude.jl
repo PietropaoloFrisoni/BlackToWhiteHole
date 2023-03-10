@@ -69,7 +69,7 @@ function WeightFactor!(weight_factor, alpha, j0, jpm, m, T_range, Immirzi, spins
 
 end
 
-function AmplitudeIntegration!(amplitude_abs_sq_integrated, amplitude_abs_sq, T_range)
+function AmplitudeIntegration!(amplitude_abs_sq_integrated, amplitude_abs_sq, T_range, T_sampling_parameter)
 
     Delta_x = T_range[2] - T_range[1]
     amp = 0.0
@@ -77,27 +77,21 @@ function AmplitudeIntegration!(amplitude_abs_sq_integrated, amplitude_abs_sq, T_
 
     for Dl_index in eachindex(amplitude_abs_sq_integrated)
 
-        for T_index in eachindex(T_range)
+        amp += amplitude_abs_sq[1, Dl_index]
 
-            if (T_index == 1)
-                amp += final_data_vector_abs_sq[T_index]
-                amp_T += final_data_vector_abs_sq_T[T_index]
-            end
+        for T_index = 2:(T_sampling_parameter-1)
 
-            amp += 2 * final_data_vector_abs_sq[T_index]
-            amp_T += 2 * final_data_vector_abs_sq_T[T_index]
-
-            if (T_index == conf.total_T_points)
-                amp += final_data_vector_abs_sq[T_index]
-                amp_T += final_data_vector_abs_sq_T[T_index]
-            end
+            amp += 2 * amplitude_abs_sq[T_index, Dl_index]
+            #amp_T += 2 * amplitude_abs_sq[T_index, Dl_index]
 
         end
 
-        Integrated_amplitude = (Delta_x / 2) * amp
-        Integrated_amplitude_T = (Delta_x / 2) * amp_T
+        amp += amplitude_abs_sq[T_sampling_parameter, Dl_index]
 
-        amplitude_abs_sq_integrated[:]
+        Integrated_amplitude = (Delta_x / 2) * amp
+        #Integrated_amplitude_T = (Delta_x / 2) * amp_T
+
+        amplitude_abs_sq_integrated[Dl_index] = Integrated_amplitude
 
     end
 

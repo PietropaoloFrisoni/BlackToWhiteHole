@@ -111,9 +111,20 @@ for user_conf in angular_spins
         end
     end
 
+    AmplitudeIntegration!(amplitude_abs_sq_integrated, amplitude_abs_sq, T_range, T_sampling_parameter)
+
+    #####################################################################################################################################
+    ### NORMALIZING THE AMPLITUDE
+    #####################################################################################################################################
+
+    #for Dl = Dl_min:Dl_max
+    #    amplitude_abs_sq[:, Dl+1] .= amplitude_abs_sq[:, Dl+1] ./ amplitude_abs_sq_integrated[Dl+1]
+    #end   
+
     amplitude_abs_sq_df = DataFrame(amplitude_abs_sq, column_labels)
 
-    
-
+    base_folder_alpha = "$(conf.base_folder)/alpha_$(alpha)"
+    mkpath(base_folder_alpha)
+    CSV.write("$(base_folder_alpha)/amplitude_abs_sq_T_$(T_sampling_parameter).csv", amplitude_abs_sq_df)
 
 end
