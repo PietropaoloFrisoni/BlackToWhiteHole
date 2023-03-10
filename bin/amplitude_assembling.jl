@@ -60,12 +60,23 @@ for user_conf in angular_spins
     @load "$(conf.base_folder)/spins_map.jld2" spins_map
     @load "$(conf.base_folder)/intertwiners_range.jld2" intertwiners_range
 
+    m = sqrt(conf.j0_float * immirzi)
+    T_range = LinRange(0, 4 * pi * m / immirzi, T_sampling_parameter)
+
     amplitude = Array{ComplexF64,2}(undef, number_of_T_points, Dl_max - Dl_min + 1)
+    amplitude_abs_sq = zeros(number_of_T_points, Dl_max - Dl_min + 1) #Array{Float64,2}(undef, number_of_T_points, Dl_max - Dl_min + 1)
+    amplitude_abs_sq_integrated = zeros(Dl_max - Dl_min + 1) #Array{Float64,1}(undef, Dl_max - Dl_min + 1)
+    #amplitude_abs_sq_integrated[:] .= 0.0
     amplitude[:] .= 0.0 + 0.0 * im
+    #amplitude_abs_sq[:] .= 0.0
+
+    column_labels = String[]
 
     for Dl = Dl_min:Dl_max
 
         printstyled("\nCurrent Dl=$(Dl)...\n"; bold=true, color=:magenta)
+
+        push!(column_labels, "Dl_$(Dl)")
 
         @time for T = 1:number_of_T_points
 
@@ -93,5 +104,16 @@ for user_conf in angular_spins
         end
 
     end
+
+    for Dl = Dl_min:Dl_max
+        for T = 1:number_of_T_points
+            amplitude_abs_sq[T, Dl+1] = abs(amplitude[T, Dl+1])^2
+        end
+    end
+
+    amplitude_abs_sq_df = DataFrame(amplitude_abs_sq, column_labels)
+
+    
+
 
 end
