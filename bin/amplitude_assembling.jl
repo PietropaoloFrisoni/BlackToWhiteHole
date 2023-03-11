@@ -64,11 +64,11 @@ for user_conf in angular_spins
     T_range = LinRange(0, 4 * pi * m / immirzi, T_sampling_parameter)
 
     amplitude = Array{ComplexF64,2}(undef, number_of_T_points, Dl_max - Dl_min + 1)
-    amplitude_abs_sq = zeros(number_of_T_points, Dl_max - Dl_min + 1) #Array{Float64,2}(undef, number_of_T_points, Dl_max - Dl_min + 1)
-    amplitude_abs_sq_integrated = zeros(Dl_max - Dl_min + 1) #Array{Float64,1}(undef, Dl_max - Dl_min + 1)
-    #amplitude_abs_sq_integrated[:] .= 0.0
     amplitude[:] .= 0.0 + 0.0 * im
-    #amplitude_abs_sq[:] .= 0.0
+
+    amplitude_abs_sq = zeros(number_of_T_points, Dl_max - Dl_min + 1)
+    amplitude_abs_sq_integrated = zeros(Dl_max - Dl_min + 1)
+    amplitude_abs_sq_integrated_T = zeros(Dl_max - Dl_min + 1)
 
     column_labels = String[]
 
@@ -111,20 +111,17 @@ for user_conf in angular_spins
         end
     end
 
-    AmplitudeIntegration!(amplitude_abs_sq_integrated, amplitude_abs_sq, T_range, T_sampling_parameter)
+    AmplitudeIntegration!(amplitude_abs_sq_integrated, amplitude_abs_sq_integrated_T, amplitude_abs_sq, T_range, T_sampling_parameter)
 
-    #####################################################################################################################################
-    ### NORMALIZING THE AMPLITUDE
-    #####################################################################################################################################
-
-    #for Dl = Dl_min:Dl_max
-    #    amplitude_abs_sq[:, Dl+1] .= amplitude_abs_sq[:, Dl+1] ./ amplitude_abs_sq_integrated[Dl+1]
-    #end   
+    lifetime = zeros(Dl_max - Dl_min + 1)
+    lifetime[:] .= amplitude_abs_sq_integrated_T[:] ./ amplitude_abs_sq_integrated[:]
 
     amplitude_abs_sq_df = DataFrame(amplitude_abs_sq, column_labels)
+    lifetime_df = DataFrame(transpose(lifetime), column_labels)
 
     base_folder_alpha = "$(conf.base_folder)/alpha_$(alpha)"
     mkpath(base_folder_alpha)
     CSV.write("$(base_folder_alpha)/amplitude_abs_sq_T_$(T_sampling_parameter).csv", amplitude_abs_sq_df)
+    CSV.write("$(base_folder_alpha)/lifetime_$(T_sampling_parameter).csv", lifetime_df)
 
 end
