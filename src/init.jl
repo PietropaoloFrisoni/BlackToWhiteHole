@@ -22,7 +22,7 @@ function InitConfig(user_conf, data_folder_path::String, contracted_spinfoam_fou
     jpm = half(2 * jpm_float)
 
     K0 = half(1)
-    Kpm = half(0)
+    Kpm = half(1)
 
     # where spins_conf, spins_map and intertwiner_range are stored
     base_folder = "$(data_folder_path)/data/amplitude_data/j0=$(j0_float)_jpm=$(jpm_float)/K0_$(twice(K0)/2)_Kpm_$(twice(Kpm)/2)"

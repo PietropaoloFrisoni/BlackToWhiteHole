@@ -72,10 +72,15 @@ end
 # contracts the vertex tensor with the lower boundary coherent state
 function SpinfoamContractDown!(coherent_matrix_down, lower_bound, upper_bound, i1_range, spins_configurations, Dl)
 
-    theta = acos(-sqrt(2 / 3))
-    phi_1 = 0
-    phi_2 = 2 * pi / 3
-    phi_3 = -2 * pi / 3
+    #theta = acos(-sqrt(2 / 3))
+    #phi_1 = 0
+    #phi_2 = 2 * pi / 3
+    #phi_3 = -2 * pi / 3
+
+    theta = 1.5
+    phi_1 = 1.2
+    phi_2 = 1.2
+    phi_3 = 1.2
 
     counter = 0
 
