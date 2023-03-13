@@ -119,7 +119,7 @@ for user_conf in angular_spins
     amplitude_abs_sq_df = DataFrame(amplitude_abs_sq, column_labels)
     lifetime_df = DataFrame(transpose(lifetime), column_labels)
 
-    base_folder_alpha = "$(conf.base_folder)/alpha_$(alpha)"
+    base_folder_alpha = "$(conf.base_folder)/immirzi_$(immirzi)/alpha_$(alpha)"
     mkpath(base_folder_alpha)
     CSV.write("$(base_folder_alpha)/amplitude_abs_sq_T_$(T_sampling_parameter).csv", amplitude_abs_sq_df)
     CSV.write("$(base_folder_alpha)/lifetime_$(T_sampling_parameter).csv", lifetime_df)
