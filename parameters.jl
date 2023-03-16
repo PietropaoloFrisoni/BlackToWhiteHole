@@ -12,7 +12,7 @@ Dl_min = 0
 Dl_max = 10
 
 # values of angular spins to compute
-angular_spins = [[1],[1.5],[2],[2.5]]       
+angular_spins = [[1],[1.5],[2],[2.5],[3],[3.5],[4],[4.5],[5]]       
 
 
 
