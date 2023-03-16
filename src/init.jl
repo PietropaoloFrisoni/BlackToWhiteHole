@@ -21,7 +21,7 @@ function InitConfig(user_conf, data_folder_path::String, contracted_spinfoam_fou
     j0 = half(2 * j0_float)
     jpm = half(2 * jpm_float)
 
-    K0 = half(0)
+    K0 = half(1)
     Kpm = half(1)
 
     # where spins_conf, spins_map and intertwiner_range are stored

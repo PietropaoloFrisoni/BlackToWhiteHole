@@ -1,10 +1,10 @@
 #!/bin/bash
 #SBATCH -A def-vidotto
 #SBATCH --nodes=1
-#SBATCH --ntasks-per-node=12
+#SBATCH --ntasks-per-node=64
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=0
-#SBATCH --time=0-01:00:00
+#SBATCH --time=3-00:00:00
 #SBATCH --job-name=BWH_computation
 #SBATCH --output=BWH_computation.log
 #SBATCH --error=BWH_computation.err
@@ -29,6 +29,7 @@ echo "Running on: $SLURM_NODELIST"
 echo
 
 
+
 # parameters
 
 JULIA_DIR=${JULIA_DIR}
@@ -36,6 +37,10 @@ BASE_DIR=${ROOT_DIR}/BlackToWhiteHole
 SL2CFOAM_DATA_DIR=${SLURM_TMPDIR}
 STORE_FOLDER=${BASE_DIR}
 T_PARAMETER=100
+
+
+
+# code to run
 
 CODE_TO_RUN=vertex_computation.jl
 
