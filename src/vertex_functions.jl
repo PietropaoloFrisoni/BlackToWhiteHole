@@ -55,13 +55,16 @@ function SpinfoamContractUp!(coherent_matrix_up, lower_bound, upper_bound, i1_ra
 
         counter += 1
 
+        extra_rotation_factor = exp(-im * (0 * spins_configurations[index][5] + (phi_2 - phi_3) * spins_configurations[index][6] + (phi_2 - phi_3) * spins_configurations[index][7]
+                                           + (phi_1 - phi_3) * spins_configurations[index][8] + (phi_2 - phi_1) * spins_configurations[index][9] + (phi_2 - phi_3) * spins_configurations[index][10]))
+
         for i1 in 1:i1_range
             s = 0.0 + 0.0 * im
             @turbo warn_check_args = false for i2 in 1:i2_range, i3 in 1:i3_range, i4 in 1:i4_range, i5 in 1:i5_range
                 s += vertex.a[i5, i4, i3, i2, i1] * c1.a[i2] * c2.a[i3] * c3.a[i4] * c4.a[i5]
             end
 
-            coherent_matrix_up[i1, counter] = s
+            coherent_matrix_up[i1, counter] = s * extra_rotation_factor
 
         end
 
@@ -117,13 +120,16 @@ function SpinfoamContractDown!(coherent_matrix_down, lower_bound, upper_bound, i
 
         counter += 1
 
+        extra_rotation_factor = exp(-im * (0 * spins_configurations[index][5] + (phi_2 - phi_3) * spins_configurations[index][6] + (phi_2 - phi_3) * spins_configurations[index][7]
+                                           + (phi_1 - phi_3) * spins_configurations[index][8] + (phi_2 - phi_1) * spins_configurations[index][9] + (phi_2 - phi_3) * spins_configurations[index][10]))
+
         for i1 in 1:i1_range
             s = 0.0 + 0.0 * im
             @turbo warn_check_args = false for i2 in 1:i2_range, i3 in 1:i3_range, i4 in 1:i4_range, i5 in 1:i5_range
                 s += vertex.a[i5, i4, i3, i2, i1] * c1.a[i2] * c2.a[i3] * c3.a[i4] * c4.a[i5]
             end
 
-            coherent_matrix_down[i1, counter] = s
+            coherent_matrix_down[i1, counter] = s * extra_rotation_factor
 
         end
 
