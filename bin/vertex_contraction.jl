@@ -98,7 +98,11 @@ for user_conf in angular_spins
             contracted_spinfoam = Vector{ComplexF64}(undef, total_elements)
 
             SpinfoamContractUp!(coherent_matrix_up, lower_bound, upper_bound, i1_range, spins_configurations, Dl)
-            SpinfoamContractDown!(coherent_matrix_down, lower_bound, upper_bound, i1_range, spins_configurations, Dl)
+
+            # Since there is complete symmetry between top and bottom, we can perform the contraction just once
+            # SpinfoamContractDown!(coherent_matrix_down, lower_bound, upper_bound, i1_range, spins_configurations, Dl)
+            coherent_matrix_down[:] .= coherent_matrix_up[:]
+
             SpinfoamFinalContraction!(contracted_spinfoam, coherent_matrix_up, coherent_matrix_down, i1_range, total_radial_spins_combinations)
 
             @save "$(path_contracted_spinfoam)/contracted_spinfoam.jld2" contracted_spinfoam
