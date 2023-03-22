@@ -35,16 +35,16 @@ function CoherentStateVector!(coherentstate::Vector{ComplexF64}, spins::Vector{H
     sgn4 = half(2 * directions[4])
 
     if (sgn1 == 1)
-        theta1 = theta1 - pi / 2
+        theta1 -= pi / 2
     end
     if (sgn2 == 1)
-        theta2 = theta2 - pi / 2
+        theta2 -= pi / 2
     end
     if (sgn3 == 1)
-        theta3 = theta3 - pi / 2
+        theta3 -= pi / 2
     end
     if (sgn4 == 1)
-        theta4 = theta4 - pi / 2
+        theta4 -= pi / 2
     end
 
     WignerD1 = wignerD(j1, phi1, theta1, 0)
@@ -65,7 +65,7 @@ function CoherentStateVector!(coherentstate::Vector{ComplexF64}, spins::Vector{H
                 for m3::HalfInt8 = -j3:j3
                     m3 *= sgn3
 
-                    m4 = half(2* (-m1 - m2 - m3) * sgn4)
+                    m4 = half(2 * (-m1 - m2 - m3) * sgn4)
 
                     if (m4 < -j4 || m4 > j4)
                         continue
@@ -95,11 +95,12 @@ function CoherentStateVector!(coherentstate::Vector{ComplexF64}, spins::Vector{H
                     end
 
                     coherentstate[intertwiner_index] += W4j * WignerD1_with_sign * WignerD2_with_sign * WignerD3_with_sign * WignerD4_with_sign
-                    # TODO: non scordare fattore dimensionale
 
                 end
             end
         end
+
+        coherentstate[intertwiner_index] *= sqrt(Dimension(intertwiner))
 
     end
 
@@ -127,18 +128,15 @@ function SpinfoamContractUp!(coherent_matrix_up, lower_bound, upper_bound, i1_ra
                 spins_configurations[index][7], spins_configurations[index][8], spins_configurations[index][9],
                 spins_configurations[index][10]], Dl)
 
-rg = intertwiner_range(spins_configurations[index][5], spins_configurations[index][6], spins_configurations[index][7], spins_configurations[index][1])[2]
+        rg = intertwiner_range(spins_configurations[index][5], spins_configurations[index][6], spins_configurations[index][7], spins_configurations[index][1])[2]
 
         coherentstate = Vector{ComplexF64}(undef, rg)
 
         coherentstate[:] .= 0.0 + 0.0 * im
 
-        CoherentStateVector!(coherentstate, 
-        [spins_configurations[index][5], spins_configurations[index][6], spins_configurations[index][7], spins_configurations[index][1]], 
-        [[2.4, 1.1], [4.4, 1.1], [4.4, 1.1], [4.4, 1.1]], [1, -1, 1, 1])
-
-        println(coherentstate)
-
+        CoherentStateVector!(coherentstate,
+            [spins_configurations[index][5], spins_configurations[index][6], spins_configurations[index][7], spins_configurations[index][1]],
+            [[2.4, 1.1], [4.4, 1.1], [4.4, 1.1], [4.4, 1.1]], [1, -1, 1, 1])
 
         c1 = coherentstate_compute([spins_configurations[index][5]
                 spins_configurations[index][6]
