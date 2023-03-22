@@ -25,5 +25,5 @@ end
 
 # computes a Wigner 4jm symbol on-the-fly
 @inline function Wigner4jm(j1::HalfInteger, j2::HalfInteger, j3::HalfInteger, j4::HalfInteger, m1::HalfInteger, m2::HalfInteger, m3::HalfInteger, m4::HalfInteger, i::HalfInteger)
-    return (-1)^(i -(-m1 -m2)) * wigner3j(j1, j2, i, m1, m2, -m1-m2)  * wigner3j(i, j3, j4, m1+m2, m3, m4)
+    return (-1)^(i + m1 + m2) * wigner3j(j1, j2, i, m1, m2, -m1 - m2) * wigner3j(i, j3, j4, m1 + m2, m3, m4)
 end

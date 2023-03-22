@@ -8,7 +8,68 @@ function VertexDistributeSingleMachine(spins_configurations, Dl::Integer, store=
 end
 
 # computes a coherent state coefficient for the BW spinfoam boundary
-function CoherentStateVector!(coherentstate::Vector{ComplexF64}, spins::Vector{Half{Int64}}, angles::Vector{Vector{Float64}}, directions::Vector{String})
+# each direction is +1 if TARGET, -1 if SOURCE
+# angles are received as [[theta1, phi1], [theta2, phi2] ... ]
+function CoherentStateVector!(coherentstate::Vector{ComplexF64}, spins::Vector{Half{Int64}}, angles::Vector{Vector{Float64}}, directions::Vector{Int64})
+
+    j1 = spins[1]
+    j2 = spins[2]
+    j3 = spins[3]
+    j4 = spins[4]
+
+    theta1 = angles[1][1]
+    phi1 = angles[1][2]
+
+    theta2 = angles[2][1]
+    phi2 = angles[2][2]
+
+    theta3 = angles[3][1]
+    phi3 = angles[3][2]
+
+    theta4 = angles[4][1]
+    phi4 = angles[4][2]
+
+    sgn1 = half(2 * directions[1])
+    sgn2 = half(2 * directions[2])
+    sgn3 = half(2 * directions[3])
+    sgn4 = half(2 * directions[4])
+
+    if (sgn1 == 1)
+        theta1 = theta1 - Pi / 2
+    end
+    if (sgn2 == 1)
+        theta2 = theta2 - Pi / 2
+    end
+    if (sgn3 == 1)
+        theta3 = theta3 - Pi / 2
+    end
+    if (sgn4 == 1)
+        theta4 = theta4 - Pi / 2
+    end
+
+    WignerD1 = wignerD(j1, phi1, theta1, 0)
+    WignerD2 = wignerD(j2, phi2, theta2, 0)
+    WignerD3 = wignerD(j3, phi3, theta3, 0)
+    WignerD4 = wignerD(j4, phi4, theta4, 0)
+
+    range_tuple = intertwiner_range(j1, j2, j3, j4)
+
+    for m1::HalfInt8 = -j1:j1,
+        m2::HalfInt8 = -j2:j2,
+        m3::HalfInt8 = -j3:j3
+
+        m4 = -m1 - m2 - m3
+
+        if (m4 < -j4 || m4 > j4)
+            continue
+        end
+
+        for i::HalfInt8 = range_tuple[1][1]:range_tuple[1][2]
+            W4j = Wigner4jm(j1, j2, j3, j4, m1 * sgn1, m2* sgn2, m3* sgn3, m4* sgn4, i)
+            # TODO: continua da qui
+        end
+
+    end
 
 end
 
