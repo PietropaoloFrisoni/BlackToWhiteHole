@@ -7,6 +7,11 @@ function VertexDistributeSingleMachine(spins_configurations, Dl::Integer, store=
 
 end
 
+# computes a coherent state coefficient for the BW spinfoam boundary
+function CoherentStateVector!(coherentstate::Vector{ComplexF64}, spins::Vector{Half{Int64}}, angles::Vector{Vector{Float64}}, directions::Vector{String})
+
+end
+
 # contracts the vertex tensor with the upper boundary coherent state
 function SpinfoamContractUp!(coherent_matrix_up, lower_bound, upper_bound, i1_range, spins_configurations, Dl)
 
