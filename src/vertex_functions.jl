@@ -7,7 +7,7 @@ function VertexDistributeSingleMachine(spins_configurations, Dl::Integer, store=
 
 end
 
-# computes a coherent state coefficient for the BW spinfoam boundary
+# computes a coherent state coefficient for the BW spinfoam boundary (NOT optimized)
 # each direction is +1 if TARGET, -1 if SOURCE
 # angles are received as [[theta1, phi1], [theta2, phi2] ... ]
 function CoherentStateVector!(coherentstate::Vector{ComplexF64}, spins::Vector{HalfInt8}, angles::Vector{Vector{Float64}}, directions::Vector{Int64})
@@ -47,11 +47,6 @@ function CoherentStateVector!(coherentstate::Vector{ComplexF64}, spins::Vector{H
         theta4 -= pi / 2
     end
 
-    WignerD1 = wignerD(j1, phi1, theta1, 0)
-    WignerD2 = wignerD(j2, phi2, theta2, 0)
-    WignerD3 = wignerD(j3, phi3, theta3, 0)
-    WignerD4 = wignerD(j4, phi4, theta4, 0)
-
     range_tuple = intertwiner_range(j1, j2, j3, j4)
 
     for intertwiner_index = 1:range_tuple[2]
@@ -60,47 +55,41 @@ function CoherentStateVector!(coherentstate::Vector{ComplexF64}, spins::Vector{H
 
         for m1::HalfInt8 = -j1:j1
             m1 *= sgn1
-            for m2::HalfInt8 = -j2:j2
+             for m2::HalfInt8 = -j2:j2
                 m2 *= sgn2
-                for m3::HalfInt8 = -j3:j3
+                 for m3::HalfInt8 = -j3:j3
                     m3 *= sgn3
+                    for m4::HalfInt8 = -j4:j4
+                        m4 *= sgn4
 
-                    m4 = half(2 * (-m1 - m2 - m3) * sgn4)
+                        W4j = Wigner4jm(j1, j2, j3, j4, m1, m2, m3, m4, intertwiner)
 
-                    if (m4 < -j4 || m4 > j4)
-                        continue
+                        WignerD1_with_sign = WignerD.wignerDjmn(j1, m1, j1*sgn1, phi1, theta1, 0.0)
+                        WignerD2_with_sign = WignerD.wignerDjmn(j2, m2, j2*sgn2, phi2, theta2, 0.0)
+                        WignerD3_with_sign = WignerD.wignerDjmn(j3, m3, j3*sgn3, phi3, theta3, 0.0)
+                        WignerD4_with_sign = WignerD.wignerDjmn(j4, m4, j4*sgn4, phi4, theta4, 0.0)
+
+                        if (sgn1 == -1)
+                            WignerD1_with_sign *= (-1)^(j1 + m1)
+                        end
+                        if (sgn2 == -1)
+                            WignerD2_with_sign *= (-1)^(j2 + m2)
+                        end
+                        if (sgn3 == -1)
+                            WignerD3_with_sign *= (-1)^(j3 + m3)
+                        end
+                        if (sgn4 == -1)
+                            WignerD4_with_sign *= (-1)^(j4 + m4)
+                        end
+
+                        @inbounds coherentstate[intertwiner_index] += W4j * WignerD1_with_sign * WignerD2_with_sign * WignerD3_with_sign * WignerD4_with_sign
+
                     end
-
-                    W4j = Wigner4jm(j1, j2, j3, j4, m1, m2, m3, m4, intertwiner)
-
-                    if (sgn1 == 1)
-                        WignerD1_with_sign = WignerD1[Int(m1 + j1 + 1), Int(2 * j1 + 1)]
-                    else
-                        WignerD1_with_sign = (-1)^(j1 - m1) * WignerD1[Int(-m1 + j1 + 1), 1]
-                    end
-                    if (sgn2 == 1)
-                        WignerD2_with_sign = WignerD2[Int(m2 + j2 + 1), Int(2 * j2 + 1)]
-                    else
-                        WignerD2_with_sign = (-1)^(j2 - m2) * WignerD2[Int(-m2 + j2 + 1), 1]
-                    end
-                    if (sgn3 == 1)
-                        WignerD3_with_sign = WignerD3[Int(m3 + j3 + 1), Int(2 * j3 + 1)]
-                    else
-                        WignerD3_with_sign = (-1)^(j3 - m3) * WignerD3[Int(-m3 + j3 + 1), 1]
-                    end
-                    if (sgn4 == 1)
-                        WignerD4_with_sign = WignerD4[Int(m4 + j4 + 1), Int(2 * j4 + 1)]
-                    else
-                        WignerD4_with_sign = (-1)^(j4 - m4) * WignerD4[Int(-m4 + j4 + 1), 1]
-                    end
-
-                    coherentstate[intertwiner_index] += W4j * WignerD1_with_sign * WignerD2_with_sign * WignerD3_with_sign * WignerD4_with_sign
-
                 end
             end
         end
 
-        coherentstate[intertwiner_index] *= sqrt(Dimension(intertwiner))
+        @inbounds coherentstate[intertwiner_index] *= sqrt(Dimension(intertwiner))
 
     end
 
@@ -118,6 +107,8 @@ function SpinfoamContractUp!(coherent_matrix_up, lower_bound, upper_bound, i1_ra
 
     @inbounds for index = lower_bound:upper_bound
 
+        counter += 1
+
         i2_range = intertwiners_range[index][2]
         i3_range = intertwiners_range[index][3]
         i4_range = intertwiners_range[index][4]
@@ -128,52 +119,39 @@ function SpinfoamContractUp!(coherent_matrix_up, lower_bound, upper_bound, i1_ra
                 spins_configurations[index][7], spins_configurations[index][8], spins_configurations[index][9],
                 spins_configurations[index][10]], Dl)
 
-        rg = intertwiner_range(spins_configurations[index][5], spins_configurations[index][6], spins_configurations[index][7], spins_configurations[index][1])[2]
+        coherentstate1 = Vector{ComplexF64}(undef, i2_range)
+        coherentstate2 = Vector{ComplexF64}(undef, i3_range)
+        coherentstate3 = Vector{ComplexF64}(undef, i4_range)
+        coherentstate4 = Vector{ComplexF64}(undef, i5_range)
 
-        coherentstate = Vector{ComplexF64}(undef, rg)
+        coherentstate1[:] .= 0.0 + 0.0 * im
+        coherentstate2[:] .= 0.0 + 0.0 * im
+        coherentstate3[:] .= 0.0 + 0.0 * im
+        coherentstate4[:] .= 0.0 + 0.0 * im
 
-        coherentstate[:] .= 0.0 + 0.0 * im
-
-        CoherentStateVector!(coherentstate,
+        CoherentStateVector!(coherentstate1,
             [spins_configurations[index][5], spins_configurations[index][6], spins_configurations[index][7], spins_configurations[index][1]],
-            [[2.4, 1.1], [4.4, 1.1], [4.4, 1.1], [4.4, 1.1]], [1, -1, 1, 1])
+            [[theta, phi_1], [theta, phi_2], [theta, phi_3], [0.0, 0.0]], [1, 1, -1, 1])
 
-        c1 = coherentstate_compute([spins_configurations[index][5]
-                spins_configurations[index][6]
-                spins_configurations[index][7]
-                spins_configurations[index][1]],
-            [[theta, theta, theta, 0] [phi_1, phi_2, phi_3, 0]])
+        CoherentStateVector!(coherentstate2,
+            [spins_configurations[index][8], spins_configurations[index][9], spins_configurations[index][2], spins_configurations[index][5]],
+            [[theta, phi_3], [theta, phi_2], [0.0, 0.0], [theta, phi_1]], [-1, 1, -1, -1])
 
-        c2 = coherentstate_compute([spins_configurations[index][8]
-                spins_configurations[index][9]
-                spins_configurations[index][2]
-                spins_configurations[index][5]],
-            [[theta, theta, 0, theta] [phi_3, phi_2, 0, phi_1]])
+        CoherentStateVector!(coherentstate3,
+            [spins_configurations[index][10], spins_configurations[index][3], spins_configurations[index][6], spins_configurations[index][8]],
+            [[theta, phi_2], [0.0, 0.0], [theta, phi_3], [theta, phi_1]], [1, 1, -1, 1])
 
-        c3 = coherentstate_compute([spins_configurations[index][10]
-                spins_configurations[index][3]
-                spins_configurations[index][6]
-                spins_configurations[index][8]],
-            [[theta, 0, theta, theta] [phi_2, 0, phi_3, phi_1]])
-
-        c4 = coherentstate_compute([spins_configurations[index][4]
-                spins_configurations[index][7]
-                spins_configurations[index][9]
-                spins_configurations[index][10]],
-            [[0, theta, theta, theta] [0, phi_2, phi_1, phi_3]])
-
-        counter += 1
-
-        extra_rotation_factor = exp(-im * (0 * spins_configurations[index][5] + (phi_2 - phi_3) * spins_configurations[index][6] + (phi_2 - phi_3) * spins_configurations[index][7]
-                                           + (phi_1 - phi_3) * spins_configurations[index][8] + (phi_2 - phi_1) * spins_configurations[index][9] + (phi_2 - phi_3) * spins_configurations[index][10]))
+        CoherentStateVector!(coherentstate4,
+            [spins_configurations[index][4], spins_configurations[index][7], spins_configurations[index][9], spins_configurations[index][10]],
+            [[0.0, 0.0], [theta, phi_2], [theta, phi_1], [theta, phi_3]], [-1, 1, -1, -1])
 
         for i1 in 1:i1_range
             s = 0.0 + 0.0 * im
             @turbo warn_check_args = false for i2 in 1:i2_range, i3 in 1:i3_range, i4 in 1:i4_range, i5 in 1:i5_range
-                s += vertex.a[i5, i4, i3, i2, i1] * c1.a[i2] * c2.a[i3] * c3.a[i4] * c4.a[i5]
+                s += vertex.a[i5, i4, i3, i2, i1] * coherentstate1[i2] * coherentstate2[i3] * coherentstate3[i4] * coherentstate4[i5]
             end
 
-            coherent_matrix_up[i1, counter] = s * extra_rotation_factor
+            coherent_matrix_up[i1, counter] = s
 
         end
 
@@ -182,6 +160,7 @@ function SpinfoamContractUp!(coherent_matrix_up, lower_bound, upper_bound, i1_ra
 end
 
 # contracts the vertex tensor with the lower boundary coherent state
+# DEPRECATED
 function SpinfoamContractDown!(coherent_matrix_down, lower_bound, upper_bound, i1_range, spins_configurations, Dl)
 
     theta = acos(-sqrt(2 / 3))
