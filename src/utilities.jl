@@ -24,12 +24,12 @@ macro RetrieveFromProcess(p, obj, mod=:Main)
 end
 
 # computes a Wigner 4jm symbol on-the-fly efficiently for all outgoing links
-@inline function Wigner4jm2(j1::HalfInteger, j2::HalfInteger, j3::HalfInteger, j4::HalfInteger, m1, m2, m3, m4, i::HalfInteger)
+@inline function Wigner4jm(j1::HalfInteger, j2::HalfInteger, j3::HalfInteger, j4::HalfInteger, m1, m2, m3, m4, i::HalfInteger)
     return (-1)^(i + m1 + m2) * wigner3j(j1, j2, i, m1, m2, -m1 - m2) * wigner3j(i, j3, j4, m1 + m2, m3, m4)
 end
 
 # computes a Wigner 4jm symbol on-the-fly with sum over m
-@inline function Wigner4jm(j1::HalfInteger, j2::HalfInteger, j3::HalfInteger, j4::HalfInteger, m1, m2, m3, m4, i::HalfInteger)
+@inline function Wigner4jm2(j1::HalfInteger, j2::HalfInteger, j3::HalfInteger, j4::HalfInteger, m1, m2, m3, m4, i::HalfInteger)
     w4j = 0.0
     for m = -i:i
         w4j += (-1)^(i - m) * wigner3j(j1, j2, i, m1, m2, m) * wigner3j(i, j3, j4, -m, m3, m4)

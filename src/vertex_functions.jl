@@ -7,7 +7,7 @@ function VertexDistributeSingleMachine(spins_configurations, Dl::Integer, store=
 
 end
 
-# computes a coherent state coefficient for the BW spinfoam boundary (NOT optimized)
+# computes a coherent state coefficient for the BW spinfoam boundary
 # each direction is +1 if TARGET, -1 if SOURCE
 # angles are received as [[theta1, phi1], [theta2, phi2] ... ]
 function CoherentStateVector!(coherentstate::Vector{ComplexF64}, spins::Vector{HalfInt8}, angles::Vector{Vector{Float64}}, directions::Vector{Int64})
@@ -54,37 +54,42 @@ function CoherentStateVector!(coherentstate::Vector{ComplexF64}, spins::Vector{H
         intertwiner = half(2 * from_index_to_intertwiner(range_tuple, intertwiner_index))
 
         for m1::HalfInt8 = -j1:j1
-            m1 *= sgn1
-             for m2::HalfInt8 = -j2:j2
-                m2 *= sgn2
-                 for m3::HalfInt8 = -j3:j3
-                    m3 *= sgn3
-                    for m4::HalfInt8 = -j4:j4
-                        m4 *= sgn4
+            for m2::HalfInt8 = -j2:j2
 
-                        W4j = Wigner4jm(j1, j2, j3, j4, m1, m2, m3, m4, intertwiner)
+                if (m1 + m2 > intertwiner || m1 + m2 < -intertwiner)
+                    continue
+                end
 
-                        WignerD1_with_sign = WignerD.wignerDjmn(j1, m1, j1*sgn1, phi1, theta1, 0.0)
-                        WignerD2_with_sign = WignerD.wignerDjmn(j2, m2, j2*sgn2, phi2, theta2, 0.0)
-                        WignerD3_with_sign = WignerD.wignerDjmn(j3, m3, j3*sgn3, phi3, theta3, 0.0)
-                        WignerD4_with_sign = WignerD.wignerDjmn(j4, m4, j4*sgn4, phi4, theta4, 0.0)
+                for m3::HalfInt8 = -j3:j3
 
-                        if (sgn1 == -1)
-                            WignerD1_with_sign *= (-1)^(j1 + m1)
-                        end
-                        if (sgn2 == -1)
-                            WignerD2_with_sign *= (-1)^(j2 + m2)
-                        end
-                        if (sgn3 == -1)
-                            WignerD3_with_sign *= (-1)^(j3 + m3)
-                        end
-                        if (sgn4 == -1)
-                            WignerD4_with_sign *= (-1)^(j4 + m4)
-                        end
+                    m4 = -m1 - m2 - m3
 
-                        @inbounds coherentstate[intertwiner_index] += W4j * WignerD1_with_sign * WignerD2_with_sign * WignerD3_with_sign * WignerD4_with_sign
-
+                    if (m4 > j4 || m4 < -j4)
+                        continue
                     end
+
+                    W4j = Wigner4jm(j1, j2, j3, j4, m1, m2, m3, m4, intertwiner)
+
+                    WignerD1_with_sign = WignerD.wignerDjmn(j1, m1, j1 * sgn1, phi1, theta1, 0.0)
+                    WignerD2_with_sign = WignerD.wignerDjmn(j2, m2, j2 * sgn2, phi2, theta2, 0.0)
+                    WignerD3_with_sign = WignerD.wignerDjmn(j3, m3, j3 * sgn3, phi3, theta3, 0.0)
+                    WignerD4_with_sign = WignerD.wignerDjmn(j4, m4, j4 * sgn4, phi4, theta4, 0.0)
+
+                    if (sgn1 == -1)
+                        WignerD1_with_sign *= (-1)^(j1 + m1)
+                    end
+                    if (sgn2 == -1)
+                        WignerD2_with_sign *= (-1)^(j2 + m2)
+                    end
+                    if (sgn3 == -1)
+                        WignerD3_with_sign *= (-1)^(j3 + m3)
+                    end
+                    if (sgn4 == -1)
+                        WignerD4_with_sign *= (-1)^(j4 + m4)
+                    end
+
+                    @inbounds coherentstate[intertwiner_index] += W4j * WignerD1_with_sign * WignerD2_with_sign * WignerD3_with_sign * WignerD4_with_sign
+
                 end
             end
         end
