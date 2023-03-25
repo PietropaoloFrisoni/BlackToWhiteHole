@@ -7,13 +7,14 @@ using CSV
 using HalfIntegers
 using LoopVectorization
 using LinearAlgebra
-using WignerD
+using StructArrays
 using WignerSymbols
+using OffsetArrays
 
 # useful code script to install all required pkgs in a single loop
 
 #=
-vec = ["Distributions", "ElasticArrays", "HalfIntegers", "LoopVectorization", "JLD2", "LinearAlgebra", "Distributed", "CSV", "DataFrames", "Dates", "WignerD", "WignerSymbols"]
+vec = ["OffsetArrays", "StructArrays", "Distributions", "ElasticArrays", "HalfIntegers", "LoopVectorization", "JLD2", "LinearAlgebra", "Distributed", "CSV", "DataFrames", "Dates", "WignerD", "WignerSymbols"]
 import Pkg
 for p in vec
 Pkg.add("$p")

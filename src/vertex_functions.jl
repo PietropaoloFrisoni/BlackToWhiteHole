@@ -70,10 +70,10 @@ function CoherentStateVector!(coherentstate::Vector{ComplexF64}, spins::Vector{H
 
                     W4j = Wigner4jm(j1, j2, j3, j4, m1, m2, m3, m4, intertwiner)
 
-                    WignerD1_with_sign = WignerD.wignerDjmn(j1, m1, j1 * sgn1, phi1, theta1, 0.0)
-                    WignerD2_with_sign = WignerD.wignerDjmn(j2, m2, j2 * sgn2, phi2, theta2, 0.0)
-                    WignerD3_with_sign = WignerD.wignerDjmn(j3, m3, j3 * sgn3, phi3, theta3, 0.0)
-                    WignerD4_with_sign = WignerD.wignerDjmn(j4, m4, j4 * sgn4, phi4, theta4, 0.0)
+                    WignerD1_with_sign = wignerDjmn(j1, m1, j1 * sgn1, phi1, theta1, 0.0)
+                    WignerD2_with_sign = wignerDjmn(j2, m2, j2 * sgn2, phi2, theta2, 0.0)
+                    WignerD3_with_sign = wignerDjmn(j3, m3, j3 * sgn3, phi3, theta3, 0.0)
+                    WignerD4_with_sign = wignerDjmn(j4, m4, j4 * sgn4, phi4, theta4, 0.0)
 
                     if (sgn1 == -1)
                         WignerD1_with_sign *= (-1)^(j1 + m1)

@@ -27,6 +27,7 @@ println("precompiling source code...")
     include("../src/check.jl")
     include("../src/vertex_functions.jl")
     include("../src/generating_spins.jl")
+    include("../src/wigner_matrix.jl")
 end
 println("done\n")
 
