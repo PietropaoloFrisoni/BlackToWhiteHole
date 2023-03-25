@@ -9,9 +9,6 @@ current_folder = pwd()
 # folder with fastwigxj tables to initialize the library
 @eval sl2cfoam_next_data_folder = $(ARGS[2])
 
-# number of points to plot amplitude as function of T
-@eval T_sampling_parameter = parse(Int, ARGS[3])
-
 printstyled("\nBlack-to-White hole amplitude\n\n"; bold=true, color=:blue)
 
 println("precompiling packages...")
@@ -42,7 +39,7 @@ println("-----------------------------------------------------------------------
 
 for user_conf in angular_spins
 
-    conf = InitConfig(user_conf, data_folder_path)
+    local conf = InitConfig(user_conf, data_folder_path)
     @eval conf = $conf
 
     printstyled("\n\nStarting with configuration:\nj0=$(conf.j0), jpm=$(conf.jpm) ...\n\n"; bold=true, color=:bold)
@@ -70,7 +67,7 @@ for user_conf in angular_spins
     amplitude_abs_sq_integrated = zeros(Dl_max - Dl_min + 1)
     amplitude_abs_sq_integrated_T = zeros(Dl_max - Dl_min + 1)
 
-    column_labels = String[]
+    local column_labels = String[]
 
     for Dl = Dl_min:Dl_max
 

@@ -11,9 +11,6 @@ using Distributed
 # folder with fastwigxj tables to initialize the library
 @eval @everywhere sl2cfoam_next_data_folder = $(ARGS[2])
 
-# number of points to plot amplitude as function of T
-@eval @everywhere T_sampling_parameter = parse(Int, ARGS[3])
-
 printstyled("\nBlack-to-White hole amplitude parallelized on $(number_of_workers) worker(s)\n\n"; bold=true, color=:blue)
 
 println("precompiling packages...")
@@ -52,7 +49,7 @@ println("-----------------------------------------------------------------------
 
 for user_conf in angular_spins
 
-    conf = InitConfig(user_conf, data_folder_path)
+    local conf = InitConfig(user_conf, data_folder_path)
     @eval @everywhere conf = $conf
 
     printstyled("\n\nStarting with configuration:\nj0=$(conf.j0), jpm=$(conf.jpm) ...\n\n"; bold=true, color=:bold)
@@ -72,7 +69,6 @@ for user_conf in angular_spins
 
     m = sqrt(conf.j0_float * immirzi)
     T_range = LinRange(0, 4 * pi * m / immirzi, T_sampling_parameter)
-    number_of_T_points = T_sampling_parameter
 
     @time @sync @distributed for current_angular_spins_comb in eachindex(spins_map)
 
@@ -90,12 +86,12 @@ for user_conf in angular_spins
 
         total_elements = total_radial_spins_combinations^2
 
-        weight_factor = Array{ComplexF64,2}(undef, total_elements, number_of_T_points)
+        weight_factor = Array{ComplexF64,2}(undef, total_elements, T_sampling_parameter)
 
         WeightFactor!(weight_factor, alpha, conf.j0_float, conf.jpm_float, m, T_range, immirzi, spins_configurations,
             lower_bound, upper_bound, j1, j2, j3, j4)
 
-        @save "$(path_weight_factor)/weight_factor_T_$(number_of_T_points).jld2" weight_factor
+        @save "$(path_weight_factor)/weight_factor_T_$(T_sampling_parameter).jld2" weight_factor
 
     end
 

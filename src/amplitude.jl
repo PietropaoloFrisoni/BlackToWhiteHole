@@ -14,7 +14,7 @@ function WeightFactor!(weight_factor, alpha, j0, jpm, m, T_range, Immirzi, spins
 
         zita_0 = T_range[T_index] / (2 * m)
         pre_fact_angul_2 = exp(im * Immirzi * zita_0)
-        angular_factor = (2 * j1 + 1) * (2 * j2 + 1) * (2 * j3 + 1) * (2 * j4 + 1) *
+        angular_factor = Dimension(j1) * Dimension(j2) * Dimension(j3) * Dimension(j4) *
                          pre_fact_angul_2^(j1) * pre_fact_angul_2^(j2) * pre_fact_angul_2^(j3) * pre_fact_angul_2^(j4) *
                          pre_fact_angul_1^((j1 - j0)^2) * pre_fact_angul_1^((j2 - j0)^2) *
                          pre_fact_angul_1^((j3 - j0)^2) * pre_fact_angul_1^((j4 - j0)^2)
