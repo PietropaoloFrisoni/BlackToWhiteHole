@@ -5,7 +5,7 @@ immirzi = 1
 alpha = 3
 
 # number of points sampled in T
-T_sampling_parameter = 30
+T_sampling_parameter = 100
 
 # verbosity of execution flux
 verbosity_flux = true
