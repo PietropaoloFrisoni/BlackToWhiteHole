@@ -9,10 +9,10 @@ verbosity_flux = true
 
 # number of shells
 Dl_min = 0
-Dl_max = 2
+Dl_max = 10
 
 # values of angular spins to compute
-angular_spins = [[1],[1.5],[2]]       
+angular_spins = [[1],[1.5],[2],[2.5],[3],[3.5],[4],[4.5],[5]]       
 
 
 
@@ -35,4 +35,4 @@ angular_spins = [[1],[1.5],[2]]
 
 
 
-#angular_spins = [[1,0.5],[1.5,1],[2,1.5],[2.5,1],[3,1.5],[3.5,2],[4,1.5],[4.5,2],[5,2.5]]  
+#angular_spins = [[1],[1.5],[2],[2.5],[3],[3.5],[4],[4.5],[5]]  
