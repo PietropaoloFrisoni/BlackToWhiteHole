@@ -48,6 +48,15 @@ CODE_TO_RUN=vertex_computation.jl
 
 # loading fastwig tables
 
+echo "Extracting all vertex fulltensors to: $SLURM_TMPDIR ..."
+echo
+
+tar -xvf ${BASE_DIR}/vertex_booster_tensors.tar.gz -C $SLURM_TMPDIR
+
+
+
+# loading fastwig tables
+
 echo "Copying fastwig tables to: $SLURM_TMPDIR ..."
 echo
 
