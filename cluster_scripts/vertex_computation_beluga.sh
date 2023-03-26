@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH -A def-vidotto
 #SBATCH --nodes=1
-#SBATCH --ntasks-per-node=64
+#SBATCH --ntasks-per-node=40
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=0
 #SBATCH --time=3-00:00:00
@@ -12,7 +12,7 @@
 # folders
 
 ROOT_DIR=/home/frisus95/projects/def-vidotto/frisus95
-JULIA_DIR=${ROOT_DIR}/julia-1.8.0
+JULIA_DIR=${ROOT_DIR}/julia-1.7.2
 SL2CFOAM_DIR=${ROOT_DIR}/sl2cfoam-next-dev
 FASTWIG_TABLES_PATH=${SL2CFOAM_DIR}/data_sl2cfoam
 
@@ -43,15 +43,6 @@ T_PARAMETER=100
 # code to run
 
 CODE_TO_RUN=vertex_computation.jl
-
-
-
-# loading fastwig tables
-
-echo "Extracting all vertex fulltensors to: $SLURM_TMPDIR ..."
-echo
-
-tar -xvf ${BASE_DIR}/vertex_booster_tensors.tar.gz -C $SLURM_TMPDIR
 
 
 
