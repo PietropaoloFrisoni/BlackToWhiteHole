@@ -1,13 +1,15 @@
 #!/bin/bash
 #SBATCH -A def-vidotto
 #SBATCH --nodes=1
-#SBATCH --ntasks-per-node=40
+#SBATCH --ntasks-per-node=48
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=0
 #SBATCH --time=3-00:00:00
 #SBATCH --job-name=BWH_computation
 #SBATCH --output=BWH_computation.log
 #SBATCH --error=BWH_computation.err
+#SBATCH --mail-type=BEGIN,FAIL,END
+#SBATCH --mail-user=pfrisoni@uwo.ca
 
 # folders
 
