@@ -26,9 +26,9 @@ The computation is divided into multiple steps:
 
 - *bin/vertex_computation.jl* computes all the required full vertex amplitude tensors. A supercluster is recommended for high values of $\Delta l$.
 
-- *bin/vertex_contraction.jl* evalueates the term: $\left( \sum_{i_5} d_{i_5} \prod_{\pm} V_{\gamma,  n_{f}^{\pm}}^{coh} \left(j_{ab}^{\pm}, j_{a}, i_5; \Delta l \right) \right)$ for each value of $j_{ab}^{\pm}, j_{a}$.
+- *bin/vertex_contraction.jl* evaluates the factor $\left( \sum_{i_5} d_{i_5} \prod_{\pm} V_{\gamma,  n_{f}^{\pm}}^{coh} \left(j_{ab}^{\pm}, j_{a}, i_5; \Delta l \right) \right)$ for each value of $j_{ab}^{\pm}, j_{a}$.
 
-- *bin/weight_factor.jl* computes the weight factor $w_{\alpha}$ (whose expression is not explicitly reported here) for each value of $j_{ab}^{\pm}, j_{a}$ and $T_1 \dots T_N$. It requires the number $N$ of T samples as additional parameter.
+- *bin/weight_factor.jl* computes the weight factor $w_{\alpha}$ (whose expression is not explicitly reported here) for each value of $j_{ab}^{\pm}, j_{a}$ and $T_1 \dots T_N$.
 
 - *bin/amplitude_assembling.jl* puts together all the terms and computes the total amplitude.
 
