@@ -1,26 +1,30 @@
 current_folder = pwd()
 
-@eval number_of_workers = 1
-@eval number_of_threads = 0
+@eval @everywhere number_of_workers = nworkers()
+@eval @everywhere number_of_threads = 0
 
 # folder where data are stored
-@eval data_folder_path = $(ARGS[1])
+@eval @everywhere data_folder_path = $(ARGS[1])
 
 # folder with fastwigxj tables to initialize the library
-@eval sl2cfoam_next_data_folder = $(ARGS[2])
+@eval @everywhere sl2cfoam_next_data_folder = $(ARGS[2])
 
-printstyled("\nBlack-to-White hole amplitude\n\n"; bold=true, color=:blue)
+printstyled("\nBlack-to-White hole amplitude parallelized on $(number_of_workers) worker(s)\n\n"; bold=true, color=:blue)
 
 println("precompiling packages...")
-include("../inc/pkgs.jl")
+@everywhere begin
+    include("../inc/pkgs.jl")
+end
 println("done\n")
 
 println("precompiling source code...")
-include("../parameters.jl")
-include("../src/init.jl")
-include("../src/utilities.jl")
-include("../src/check.jl")
-include("../src/amplitude.jl")
+@everywhere begin
+    include("../parameters.jl")
+    include("../src/init.jl")
+    include("../src/utilities.jl")
+    include("../src/check.jl")
+    include("../src/amplitude.jl")
+end
 println("done\n")
 
 println("checking configurations to compute...")
@@ -28,8 +32,19 @@ CheckPreliminaryParameters(data_folder_path, sl2cfoam_next_data_folder, Dl_min, 
 
 number_conf = size(angular_spins)[1]
 
-for user_conf in angular_spins
-    CheckConfiguration!(user_conf)
+@everywhere begin
+    task_id = myid()
+    number_of_tasks = nprocs()
+    number_conf = size(angular_spins)[1]
+
+    for user_conf in angular_spins
+        CheckConfiguration!(user_conf)
+    end
+end
+println("done\n")
+
+if number_of_workers > T_sampling_parameter
+    error("Parallelization not safe")
 end
 println("done\n")
 
@@ -40,12 +55,10 @@ println("-----------------------------------------------------------------------
 for user_conf in angular_spins
 
     local conf = InitConfig(user_conf, data_folder_path)
-    @eval conf = $conf
+    @eval @everywhere conf = $conf
 
     printstyled("\n\nStarting with configuration:\nj0=$(conf.j0), jpm=$(conf.jpm) ...\n\n"; bold=true, color=:bold)
     sleep(1)
-
-    number_of_T_points = T_sampling_parameter
 
     #####################################################################################################################################
     ### ASSEMBLING THE AMPLITUDE
@@ -53,19 +66,24 @@ for user_conf in angular_spins
 
     printstyled("\nAssembling the amplitude...\n"; bold=true, color=:blue)
 
-    @load "$(conf.base_folder)/spins_configurations.jld2" spins_configurations
-    @load "$(conf.base_folder)/spins_map.jld2" spins_map
-    @load "$(conf.base_folder)/intertwiners_range.jld2" intertwiners_range
+    @everywhere begin
+        @load "$(conf.base_folder)/spins_configurations.jld2" spins_configurations
+        @load "$(conf.base_folder)/spins_map.jld2" spins_map
+        @load "$(conf.base_folder)/intertwiners_range.jld2" intertwiners_range
+    end
 
     m = sqrt(conf.j0_float * immirzi)
     T_range = LinRange(0, 4 * pi * m / immirzi, T_sampling_parameter)
 
-    amplitude = Array{ComplexF64,2}(undef, number_of_T_points, Dl_max - Dl_min + 1)
+    amplitude = SharedArray{ComplexF64}(T_sampling_parameter, Dl_max - Dl_min + 1)
     amplitude[:] .= 0.0 + 0.0 * im
 
-    amplitude_abs_sq = zeros(number_of_T_points, Dl_max - Dl_min + 1)
-    amplitude_abs_sq_integrated = zeros(Dl_max - Dl_min + 1)
-    amplitude_abs_sq_integrated_T = zeros(Dl_max - Dl_min + 1)
+    amplitude_abs_sq = Array{BigFloat}(undef, T_sampling_parameter, Dl_max - Dl_min + 1)
+    amplitude_abs_sq_integrated = Array{BigFloat}(undef, Dl_max - Dl_min + 1)
+    amplitude_abs_sq_T_integrated = Array{BigFloat}(undef, Dl_max - Dl_min + 1)
+    amplitude_abs_sq[:] .= 0.0
+    amplitude_abs_sq_integrated[:] .= 0.0
+    amplitude_abs_sq_T_integrated[:] .= 0.0
 
     local column_labels = String[]
 
@@ -75,7 +93,7 @@ for user_conf in angular_spins
 
         push!(column_labels, "Dl_$(Dl)")
 
-        @time for T = 1:number_of_T_points
+        @time @sync @distributed for T = 1:T_sampling_parameter
 
             for current_angular_spins_comb in eachindex(spins_map)
 
@@ -92,7 +110,7 @@ for user_conf in angular_spins
                 path_weight_factor = "$(conf.spinfoam_folder)/j1_$(j1)_j2_$(j2)_j3_$(j3)_j4_$(j4)/immirzi_$(immirzi)/alpha_$(alpha)"
 
                 @load "$(path_contracted_spinfoam)/contracted_spinfoam.jld2" contracted_spinfoam
-                @load "$(path_weight_factor)/weight_factor_T_$(number_of_T_points).jld2" weight_factor
+                @load "$(path_weight_factor)/weight_factor_T_$(T_sampling_parameter).jld2" weight_factor
 
                 amplitude[T, Dl+1] += dot(weight_factor[:, T], contracted_spinfoam[:])
 
@@ -103,22 +121,22 @@ for user_conf in angular_spins
     end
 
     for Dl = Dl_min:Dl_max
-        for T = 1:number_of_T_points
-            amplitude_abs_sq[T, Dl+1] = abs(amplitude[T, Dl+1])^2
+        for T = 1:T_sampling_parameter
+            amplitude_abs_sq[T, Dl+1] = BigFloat(abs(amplitude[T, Dl+1])^2)
         end
     end
 
-    AmplitudeIntegration!(amplitude_abs_sq_integrated, amplitude_abs_sq_integrated_T, amplitude_abs_sq, T_range, T_sampling_parameter)
+    AmplitudeIntegration!(amplitude_abs_sq_integrated, amplitude_abs_sq_T_integrated, amplitude_abs_sq, T_range, T_sampling_parameter)
 
-    lifetime = zeros(Dl_max - Dl_min + 1)
-    lifetime[:] .= amplitude_abs_sq_integrated_T[:] ./ amplitude_abs_sq_integrated[:]
+    crossing_times = Array{BigFloat}(undef, Dl_max - Dl_min + 1)
+    crossing_times[:] .= amplitude_abs_sq_T_integrated[:] ./ amplitude_abs_sq_integrated[:]
 
     amplitude_abs_sq_df = DataFrame(amplitude_abs_sq, column_labels)
-    lifetime_df = DataFrame(transpose(lifetime), column_labels)
+    crossing_times_df = DataFrame(transpose(crossing_times), column_labels)
 
     base_folder_alpha = "$(conf.base_folder)/immirzi_$(immirzi)/alpha_$(alpha)"
     mkpath(base_folder_alpha)
     CSV.write("$(base_folder_alpha)/amplitude_abs_sq_T_$(T_sampling_parameter).csv", amplitude_abs_sq_df)
-    CSV.write("$(base_folder_alpha)/lifetime_$(T_sampling_parameter).csv", lifetime_df)
+    CSV.write("$(base_folder_alpha)/lifetime_$(T_sampling_parameter).csv", crossing_times_df)
 
 end
