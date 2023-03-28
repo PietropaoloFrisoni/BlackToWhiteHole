@@ -1,7 +1,5 @@
 # Black-to-White hole transition
 
-## Structure of computation
-
 The code computes the Black-to-White hole transitin amplitude:
 
 $$
@@ -20,6 +18,10 @@ $$
 P_{\alpha} \left( m | T \right) = \frac{\mu_{\alpha} (m, T) \ |W_{\alpha} (m , T )|^2}{\int_{0}^{\infty} dT \ \mu_{\alpha} (m, T) \ |W_{\alpha} (m, T)|^2} \ .
 $$
 
+The parameters for the computation can be specified in *parameters.jl*.
+
+## Structure of computation
+
 The computation is divided into multiple steps:
 
 - *bin/vertex_computation.jl* computes all the required full vertex amplitude tensors. A supercluster is recommended for high values of $\Delta l$.
@@ -29,6 +31,8 @@ The computation is divided into multiple steps:
 - *bin/weight_factor.jl* computes the weight factor $w_{\alpha}$ (whose expression is not explicitly reported here) for each value of $j_{ab}^{\pm}, j_{a}$ and $T_1 \dots T_N$. It requires the number $N$ of T samples as additional parameter.
 
 - *bin/amplitude_assembling.jl* puts together all the terms and computes the total amplitude.
+
+The scripts can be run all together with *run_all.jl*
 
 The data are plotted in the *analysis.ipynb* notebook, inside the folder `notebooks/Julia`.
 
@@ -52,5 +56,5 @@ where [N-1] is the number of workers and:
 
 - `STORE_FOLDER`: folder where data are saved
 
-- `DATA_SL2CFOAM_FOLDER`: folder with fastwigxj tables where booster functions are stored/retrieved.
+- `DATA_SL2CFOAM_FOLDER`: folder with fastwigxj tables where booster functions and amplitudes are stored/retrieved.
 
