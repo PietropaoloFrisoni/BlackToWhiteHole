@@ -1,7 +1,7 @@
 current_folder = pwd()
 
 @eval @everywhere number_of_workers = nworkers()
-@eval @everywhere number_of_threads = 0
+@eval @everywhere number_of_threads = Threads.nthreads()
 
 # folder where data are stored
 @eval @everywhere data_folder_path = $(ARGS[1])
@@ -9,7 +9,7 @@ current_folder = pwd()
 # folder with fastwigxj tables to initialize the library
 @eval @everywhere sl2cfoam_next_data_folder = $(ARGS[2])
 
-printstyled("\nBlack-to-White hole amplitude parallelized on $(number_of_workers) worker(s)\n\n"; bold=true, color=:blue)
+printstyled("\nBlack-to-White hole amplitude assembling parallelized on $(number_of_workers) worker(s)\n\n"; bold=true, color=:blue)
 
 println("precompiling packages...")
 @everywhere begin
@@ -44,7 +44,7 @@ end
 println("done\n")
 
 if number_of_workers > T_sampling_parameter
-    error("Parallelization not safe")
+    error("Parallelization not safe: T_sampling_parameter is too low")
 end
 println("done\n")
 

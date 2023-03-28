@@ -11,7 +11,7 @@ using Distributed
 # folder with fastwigxj tables to initialize the library
 @eval @everywhere sl2cfoam_next_data_folder = $(ARGS[2])
 
-printstyled("\nBlack-to-White hole amplitude parallelized on $(number_of_workers) worker(s)\n\n"; bold=true, color=:blue)
+printstyled("\nBlack-to-White hole vertex contraction parallelized on $(number_of_workers) worker(s)\n\n"; bold=true, color=:blue)
 
 println("precompiling packages...")
 @everywhere begin
@@ -43,10 +43,6 @@ CheckPreliminaryParameters(data_folder_path, sl2cfoam_next_data_folder, Dl_min, 
         CheckConfiguration!(user_conf)
     end
 end
-println("done\n")
-
-println("Initializing sl2cfoam-next on each worker...")
-@everywhere InitSL2Cfoam(immirzi, sl2cfoam_next_data_folder, number_of_threads, verbosity_flux)
 println("done\n")
 
 println("-------------------------------------------------------------------------\n")

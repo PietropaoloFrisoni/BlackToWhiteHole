@@ -11,7 +11,7 @@ using Distributed
 # folder with fastwigxj tables to initialize the library
 @eval @everywhere sl2cfoam_next_data_folder = $(ARGS[2])
 
-printstyled("\nBlack-to-White hole amplitude parallelized on $(number_of_workers) worker(s)\n\n"; bold=true, color=:blue)
+printstyled("\nBlack-to-White hole weight factor computation parallelized on $(number_of_workers) worker(s)\n\n"; bold=true, color=:blue)
 
 println("precompiling packages...")
 @everywhere begin

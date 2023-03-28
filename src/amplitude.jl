@@ -1,3 +1,4 @@
+# computes the weight factor and stores the result into the first vector
 function WeightFactor!(weight_factor, alpha, j0, jpm, m, T_range, Immirzi, spins_configurations,
     lower_bound, upper_bound, j1, j2, j3, j4)
 
@@ -32,8 +33,8 @@ function WeightFactor!(weight_factor, alpha, j0, jpm, m, T_range, Immirzi, spins
             j24_minus = spins_configurations[index_minus][9]
             j34_minus = spins_configurations[index_minus][10]
 
-            minus_radial_factor = (2 * j12_minus + 1) * (2 * j13_minus + 1) * (2 * j14_minus + 1) *
-                                  (2 * j23_minus + 1) * (2 * j24_minus + 1) * (2 * j34_minus + 1) *
+            minus_radial_factor = Dimension(j12_minus) * Dimension(j13_minus) * Dimension(j14_minus) *
+                                  Dimension(j23_minus) * Dimension(j24_minus) * Dimension(j34_minus) *
                                   pre_fact_rad^((j12_minus - jpm)^2) * pre_fact_rad^((j13_minus - jpm)^2) * pre_fact_rad^((j14_minus - jpm)^2) *
                                   pre_fact_rad^((j23_minus - jpm)^2) * pre_fact_rad^((j24_minus - jpm)^2) * pre_fact_rad^((j34_minus - jpm)^2) *
                                   pre_fact_minus^(j12_minus) * pre_fact_minus^(j13_minus) * pre_fact_minus^(j14_minus) *
@@ -50,8 +51,8 @@ function WeightFactor!(weight_factor, alpha, j0, jpm, m, T_range, Immirzi, spins
                 j13_plus = spins_configurations[index_plus][9]
                 j12_plus = spins_configurations[index_plus][10]
 
-                plus_radial_factor = (2 * j34_plus + 1) * (2 * j24_plus + 1) * (2 * j14_plus + 1) *
-                                     (2 * j23_plus + 1) * (2 * j13_plus + 1) * (2 * j12_plus + 1) *
+                plus_radial_factor = Dimension(j12_plus) * Dimension(j13_plus) * Dimension(j14_plus) *
+                                     Dimension(j23_plus) * Dimension(j24_plus) * Dimension(j34_plus) *
                                      pre_fact_rad^((j34_plus - jpm)^2) * pre_fact_rad^((j24_plus - jpm)^2) * pre_fact_rad^((j14_plus - jpm)^2) *
                                      pre_fact_rad^((j23_plus - jpm)^2) * pre_fact_rad^((j13_plus - jpm)^2) * pre_fact_rad^((j12_plus - jpm)^2) *
                                      pre_fact_plus^(j34_plus) * pre_fact_plus^(j24_plus) * pre_fact_plus^(j14_plus) *
@@ -69,7 +70,7 @@ function WeightFactor!(weight_factor, alpha, j0, jpm, m, T_range, Immirzi, spins
 
 end
 
-# integrates |W|^2 over the first period in T using the trapezoidal rule
+# integrates |W|^2 and T*|W|^2 over the first period in T using the trapezoidal rule
 function AmplitudeIntegration!(amplitude_abs_sq_integrated, amplitude_abs_sq_T_integrated, amplitude_abs_sq, T_range, T_sampling_parameter)
 
     Delta_x = BigFloat(T_range[2] - T_range[1])
