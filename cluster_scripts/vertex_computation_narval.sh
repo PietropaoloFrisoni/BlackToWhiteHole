@@ -4,7 +4,7 @@
 #SBATCH --ntasks-per-node=64
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=0
-#SBATCH --time=3-00:00:00
+#SBATCH --time=5-00:00:00
 #SBATCH --job-name=BWH_computation
 #SBATCH --output=BWH_computation.log
 #SBATCH --error=BWH_computation.err
@@ -80,7 +80,7 @@ echo
 
 cd $SLURM_TMPDIR
 
-tar -czvf ${BASE_DIR}/vertex_booster_tensors.tar.gz vertex/
+tar -czvf ${BASE_DIR}/vertex_booster_tensors_imm_5.tar.gz vertex/
 
 
 

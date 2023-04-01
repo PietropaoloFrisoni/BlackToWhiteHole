@@ -1,8 +1,8 @@
 # value of the Immirzi parameter
-immirzi = 1
+immirzi = 5
 
 # spreading parameter of the extrinsic boundary state
-alpha = 2
+alpha = 5
 
 # number of points sampled in T
 T_sampling_parameter = 100

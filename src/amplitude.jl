@@ -73,27 +73,27 @@ end
 # integrates |W|^2 and T*|W|^2 over the first period in T using the trapezoidal rule
 function AmplitudeIntegration!(amplitude_abs_sq_integrated, amplitude_abs_sq_T_integrated, amplitude_abs_sq, T_range, T_sampling_parameter)
 
-    Delta_x = BigFloat(T_range[2] - T_range[1])
-    amp = BigFloat(0.0)
-    amp_times_T = BigFloat(0.0)
+    Delta_x = T_range[2] - T_range[1]
+    amp = 0.0
+    amp_times_T = 0.0
 
     for Dl_index in eachindex(amplitude_abs_sq_integrated)
 
-        amp += BigFloat(amplitude_abs_sq[1, Dl_index])
-        amp_times_T += BigFloat(amplitude_abs_sq[1, Dl_index] * T_range[1])
+        amp += amplitude_abs_sq[1, Dl_index]
+        amp_times_T += amplitude_abs_sq[1, Dl_index] * T_range[1]
 
         for T_index = 2:(T_sampling_parameter-1)
 
-            amp += BigFloat(2 * amplitude_abs_sq[T_index, Dl_index])
-            amp_times_T += BigFloat(2 * amplitude_abs_sq[T_index, Dl_index] * T_range[T_index])
+            amp += 2 * amplitude_abs_sq[T_index, Dl_index]
+            amp_times_T += 2 * amplitude_abs_sq[T_index, Dl_index] * T_range[T_index]
 
         end
 
-        amp += BigFloat(amplitude_abs_sq[T_sampling_parameter, Dl_index])
-        amp_times_T += BigFloat(amplitude_abs_sq[T_sampling_parameter, Dl_index] * T_range[T_sampling_parameter])
+        amp += amplitude_abs_sq[T_sampling_parameter, Dl_index]
+        amp_times_T += amplitude_abs_sq[T_sampling_parameter, Dl_index] * T_range[T_sampling_parameter]
 
-        amplitude_abs_sq_integrated[Dl_index] = BigFloat((Delta_x / 2) * amp)
-        amplitude_abs_sq_T_integrated[Dl_index] = BigFloat((Delta_x / 2) * amp_times_T)
+        amplitude_abs_sq_integrated[Dl_index] = (Delta_x / 2) * amp
+        amplitude_abs_sq_T_integrated[Dl_index] = (Delta_x / 2) * amp_times_T
 
     end
 
