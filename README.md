@@ -18,7 +18,7 @@ $$
 P_{\alpha} \left( m | T \right) = \frac{\mu_{\alpha} (m, T) \ |W_{\alpha} (m , T )|^2}{\int_{0}^{\infty} dT \ \mu_{\alpha} (m, T) \ |W_{\alpha} (m, T)|^2} \ .
 $$
 
-The parameters for the computation can be specified in *parameters.jl*.
+The parameters for the computation can be specified within the file *parameters.jl*.
 
 ## Structure of computation
 
@@ -32,11 +32,7 @@ The computation is divided into multiple steps:
 
 - *bin/amplitude_assembling.jl* puts together all the terms and computes the total amplitude.
 
-The scripts can be run all in sequence with *run_all.jl*
-
-The data analysis is performed in the *analysis.ipynb* notebook, inside the folder `notebooks/Julia`. 
-
-The notebooks inside the folder `notebooks/Mathematica` describe data of the boundary geometry. 
+The scripts can be run all in sequence with *run_all.jl* 
 
 **The Julia codes are parallelized on the available cores.** It is therefore advisable for the performance to parallelize the codes keeping into account the number of CPU cores present on the system.
 
@@ -58,3 +54,8 @@ where [N-1] is the number of workers and:
 
 - `DATA_SL2CFOAM_FOLDER`: folder with fastwigxj tables, where booster functions and vertex amplitudes are stored/retrieved.
 
+## Data analysis
+
+The data analysis is performed in the *analysis.ipynb* notebook, inside the folder `notebooks/Julia`. 
+
+The notebooks inside `notebooks/Mathematica` describe data of the boundary geometry: *boundary.nb* contains the calculation of the crossing time, while *triangulation.nb* reconstrutcs the full geometry of one 4-simplex including the orientation of normals to the tetrahedra.
