@@ -32,11 +32,11 @@ The computation is divided into multiple steps:
 
 - *bin/amplitude_assembling.jl* puts together all the terms and computes the total amplitude.
 
-The scripts can be run all together with *run_all.jl*
+The scripts can be run all in sequence with *run_all.jl*
 
-The data are plotted in the *analysis.ipynb* notebook, inside the folder `notebooks/Julia`.
+The data analysis is performed in the *analysis.ipynb* notebook, inside the folder `notebooks/Julia`. 
 
-#TODO ...
+The notebooks inside the folder `notebooks/Mathematica` describe data of the boundary geometry. 
 
 **The Julia codes are parallelized on the available cores.** It is therefore advisable for the performance to parallelize the codes keeping into account the number of CPU cores present on the system.
 
@@ -56,5 +56,5 @@ where [N-1] is the number of workers and:
 
 - `STORE_FOLDER`: folder where data are saved
 
-- `DATA_SL2CFOAM_FOLDER`: folder with fastwigxj tables where booster functions and amplitudes are stored/retrieved.
+- `DATA_SL2CFOAM_FOLDER`: folder with fastwigxj tables, where booster functions and vertex amplitudes are stored/retrieved.
 

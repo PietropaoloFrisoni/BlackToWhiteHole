@@ -2,7 +2,7 @@
 immirzi = 1
 
 # spreading parameter of the extrinsic boundary state
-alpha = 6
+alpha = 3
 
 # number of points sampled in T
 T_sampling_parameter = 100
@@ -16,6 +16,3 @@ Dl_max = 10
 
 # values of angular spins to compute
 angular_spins = [[1],[1.5],[2],[2.5],[3],[3.5],[4],[4.5],[5]]
-
-
-#angular_spins = [[1],[1.5],[2],[2.5],[3],[3.5],[4],[4.5],[5]]  
