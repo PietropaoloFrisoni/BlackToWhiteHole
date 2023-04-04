@@ -18,7 +18,7 @@ $$
 P_{\alpha} \left( m | T \right) = \frac{\mu_{\alpha} (m, T) \ |W_{\alpha} (m , T )|^2}{\int_{0}^{\infty} dT \ \mu_{\alpha} (m, T) \ |W_{\alpha} (m, T)|^2} \ .
 $$
 
-The parameters for the computation can be specified within the file *parameters.jl*.
+**The parameters for the computation can be specified within the file *parameters.jl*.**
 
 ## Structure of computation
 
@@ -58,4 +58,6 @@ where [N-1] is the number of workers and:
 
 The data analysis is performed in the *analysis.ipynb* notebook, inside the folder `notebooks/Julia`. 
 
-The notebooks inside `notebooks/Mathematica` describe data of the boundary geometry: *boundary.nb* contains the calculation of the crossing time, while *triangulation.nb* reconstrutcs the full geometry of one 4-simplex including the orientation of normals to the tetrahedra.
+The notebooks inside `notebooks/Mathematica` describe data of the boundary geometry: *boundary.nb* contains the calculation of the crossing time.*triangulation.nb* reconstrutcs the full geometry of one 4-simplex, including the orientation of normals to the tetrahedra.
+
+The folder `cluster_scripts` contains simple scripts to run the code on a single supercluster host.
