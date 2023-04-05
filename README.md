@@ -58,6 +58,6 @@ where [N-1] is the number of workers and:
 
 The data analysis is performed in the *analysis.ipynb* notebook, inside the folder `notebooks/Julia`. 
 
-The notebooks inside `notebooks/Mathematica` describe data of the boundary geometry: *boundary.nb* contains the calculation of the crossing time.*triangulation.nb* reconstrutcs the full geometry of one 4-simplex, including the orientation of normals to the tetrahedra.
+The notebooks inside `notebooks/Mathematica` describe data of the boundary geometry. Specifically, *triangulation.nb* reconstrutcs the full geometry of one 4-simplex, including the orientation of normals to the tetrahedra.
 
 The folder `cluster_scripts` contains simple scripts to run the code on a single supercluster host.
