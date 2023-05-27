@@ -1,5 +1,5 @@
 # computes the weight factor and stores the result into the first vector
-function WeightFactor!(weight_factor, alpha, j0, jpm, m, T_range, Immirzi, spins_configurations,
+function WeightFactor!(weight_factor::Matrix{ComplexF64}, alpha, j0, jpm, m, T_range, Immirzi, spins_configurations,
     lower_bound, upper_bound, j1, j2, j3, j4)
 
     zita_plus = -32 * sqrt(6) / 9
@@ -10,8 +10,6 @@ function WeightFactor!(weight_factor, alpha, j0, jpm, m, T_range, Immirzi, spins
 
     pre_fact_plus = exp(im * Immirzi * zita_plus)
     pre_fact_minus = exp(im * Immirzi * zita_minus)
-
-    pre_fact_from_boundary_states = 1 #(exp((j0^(alpha + 2)) / (2)))^(4) * (exp((jpm^(alpha + 2)) / (2)))^(12)
 
     @inbounds for T_index in eachindex(T_range)
 
@@ -62,7 +60,7 @@ function WeightFactor!(weight_factor, alpha, j0, jpm, m, T_range, Immirzi, spins
 
                 radial_factor = minus_radial_factor * plus_radial_factor
 
-                weight_factor[counter, T_index] += pre_fact_from_boundary_states * radial_factor * angular_factor
+                weight_factor[counter, T_index] += radial_factor * angular_factor
 
             end
 
@@ -73,7 +71,7 @@ function WeightFactor!(weight_factor, alpha, j0, jpm, m, T_range, Immirzi, spins
 end
 
 # integrates |W|^2 and T*|W|^2 over the first period in T using the trapezoidal rule
-function AmplitudeIntegration!(amplitude_abs_sq_integrated, amplitude_abs_sq_T_integrated, amplitude_abs_sq, T_range, T_sampling_parameter)
+function AmplitudeIntegration!(amplitude_abs_sq_integrated::Vector{Float64}, amplitude_abs_sq_T_integrated::Vector{Float64}, amplitude_abs_sq::Matrix{Float64}, T_range::LinRange{Float64,Int64}, T_sampling_parameter::Int64)
 
     Delta_x = T_range[2] - T_range[1]
     amp = 0.0

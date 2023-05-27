@@ -13,13 +13,15 @@ using Distributed
 
 printstyled("\nBlack-to-White hole vertex computations parallelized on $(number_of_workers) worker(s)\n\n"; bold=true, color=:blue)
 
-println("precompiling packages...")
+@everywhere include("../parameters.jl")
+
+verbosity_flux && println("precompiling packages...")
 @everywhere begin
     include("../inc/pkgs.jl")
 end
-println("done\n")
+verbosity_flux && println("done\n")
 
-println("precompiling source code...")
+verbosity_flux && println("precompiling source code...")
 @everywhere begin
     include("../parameters.jl")
     include("../src/init.jl")
@@ -28,9 +30,9 @@ println("precompiling source code...")
     include("../src/vertex_functions.jl")
     include("../src/generating_spins.jl")
 end
-println("done\n")
+verbosity_flux && println("done\n")
 
-println("checking configurations to compute...")
+verbosity_flux && println("checking configurations to compute...")
 CheckPreliminaryParameters(data_folder_path, sl2cfoam_next_data_folder, Dl_min, Dl_max, number_of_workers, number_of_threads)
 
 @everywhere begin
@@ -42,11 +44,11 @@ CheckPreliminaryParameters(data_folder_path, sl2cfoam_next_data_folder, Dl_min, 
         CheckConfiguration!(user_conf)
     end
 end
-println("done\n")
+verbosity_flux && println("done\n")
 
-println("Initializing sl2cfoam-next on each worker...")
+verbosity_flux && log("Initializing sl2cfoam-next on each worker...")
 @everywhere InitSL2Cfoam(immirzi, sl2cfoam_next_data_folder, number_of_threads, verbosity_flux)
-println("done\n")
+verbosity_flux && println("done\n")
 
 current_date = now()
 data_folder_path = "$(data_folder_path)"

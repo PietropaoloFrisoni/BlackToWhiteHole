@@ -11,13 +11,15 @@ current_folder = pwd()
 
 printstyled("\nBlack-to-White hole amplitude assembling parallelized on $(number_of_workers) worker(s)\n\n"; bold=true, color=:blue)
 
-println("precompiling packages...")
+@everywhere include("../parameters.jl")
+
+verbosity_flux && println("precompiling packages...")
 @everywhere begin
     include("../inc/pkgs.jl")
 end
-println("done\n")
+verbosity_flux && println("done\n")
 
-println("precompiling source code...")
+verbosity_flux && println("precompiling source code...")
 @everywhere begin
     include("../parameters.jl")
     include("../src/init.jl")
@@ -25,9 +27,9 @@ println("precompiling source code...")
     include("../src/check.jl")
     include("../src/amplitude.jl")
 end
-println("done\n")
+verbosity_flux && println("done\n")
 
-println("checking configurations to compute...")
+verbosity_flux && println("checking configurations to compute...")
 CheckPreliminaryParameters(data_folder_path, sl2cfoam_next_data_folder, Dl_min, Dl_max, 1, 0)
 
 @everywhere begin
@@ -39,7 +41,7 @@ CheckPreliminaryParameters(data_folder_path, sl2cfoam_next_data_folder, Dl_min, 
         CheckConfiguration!(user_conf)
     end
 end
-println("done\n")
+verbosity_flux && println("done\n")
 
 number_of_workers > T_sampling_parameter && warn("Parallelization not fully exploited: T_sampling_parameter is too low")
 
@@ -71,11 +73,7 @@ for user_conf in angular_spins
     Dl_range = Dl_max - Dl_min + 1
 
     amplitude = SharedArray{ComplexF64}(T_sampling_parameter, Dl_range)
-    amplitude[:] .= 0.0 + 0.0 * im
-
-    amplitude_abs_sq = zeros(T_sampling_parameter, Dl_range)
-    amplitude_abs_sq_integrated = zeros(Dl_range)
-    amplitude_abs_sq_T_integrated = zeros(Dl_range)
+    amplitude[:] .= 0.0 + 0.0im
 
     local column_labels = String[]
 
@@ -111,6 +109,10 @@ for user_conf in angular_spins
 
     end
 
+    amplitude_abs_sq = zeros(T_sampling_parameter, Dl_range)
+    amplitude_abs_sq_integrated = zeros(Dl_range)
+    amplitude_abs_sq_T_integrated = zeros(Dl_range)
+
     [[amplitude_abs_sq[T, Dl+1] = abs(amplitude[T, Dl+1])^2 * GlobalFactor(conf.j0_float, conf.jpm_float, alpha) for T = 1:T_sampling_parameter] for Dl = Dl_min:Dl_max]
     sum_check(amplitude_abs_sq) && error("NaN or Inf in amplitude absolute squared")
 
@@ -125,7 +127,7 @@ for user_conf in angular_spins
     base_folder_alpha = "$(conf.base_folder)/immirzi_$(immirzi)/alpha_$(alpha)"
     mkpath(base_folder_alpha)
     CSV.write("$(base_folder_alpha)/amplitude_abs_sq_T_$(T_sampling_parameter).csv", amplitude_abs_sq_df)
-    CSV.write("$(base_folder_alpha)/lifetime_$(T_sampling_parameter).csv", crossing_times_df)
+    CSV.write("$(base_folder_alpha)/crossing_time_$(T_sampling_parameter).csv", crossing_times_df)
 
 end
 

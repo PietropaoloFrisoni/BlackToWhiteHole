@@ -31,14 +31,10 @@ function InitConfig(user_conf, data_folder_path::String, contracted_spinfoam_fou
     # subfolder with all angular spins combinations
     spinfoam_folder = "$(base_folder)/angular_spins"
 
-    #TODO: this is valid only for T=0.
-    m = sqrt(immirzi * j0_float / 2)
+    # This estimate disregards the term exp(-T/2m)
+    m = sqrt(2 * immirzi * j0_float)
 
-    conf = Configuration(j0, j0_float, K0, jpm, jpm_float, Kpm, m,
-        contracted_spinfoam_found,
-        base_folder, spinfoam_folder)
-
-    return conf
+    Configuration(j0, j0_float, K0, jpm, jpm_float, Kpm, m, contracted_spinfoam_found, base_folder, spinfoam_folder)
 
 end
 

@@ -11,13 +11,13 @@ current_folder = pwd()
 
 printstyled("\nBlack-to-White hole lifetime computation parallelized on $(number_of_workers) worker(s)\n\n"; bold=true, color=:blue)
 
-println("precompiling packages...")
+verbosity_flux && println("precompiling packages...")
 @everywhere begin
     include("../inc/pkgs.jl")
 end
-println("done\n")
+verbosity_flux && println("done\n")
 
-println("precompiling source code...")
+verbosity_flux && println("precompiling source code...")
 @everywhere begin
     include("../parameters.jl")
     include("../src/init.jl")
@@ -25,9 +25,9 @@ println("precompiling source code...")
     include("../src/check.jl")
     include("../src/amplitude.jl")
 end
-println("done\n")
+verbosity_flux && println("done\n")
 
-println("checking configurations to compute...")
+verbosity_flux && println("checking configurations to compute...")
 CheckPreliminaryParameters(data_folder_path, sl2cfoam_next_data_folder, Dl_min, Dl_max, 1, 0)
 
 @everywhere begin
@@ -39,7 +39,7 @@ CheckPreliminaryParameters(data_folder_path, sl2cfoam_next_data_folder, Dl_min, 
         CheckConfiguration!(user_conf)
     end
 end
-println("done\n")
+verbosity_flux && println("done\n")
 
 println("-------------------------------------------------------------------------\n")
 printstyled("Starting computations\n\n"; bold=true, color=:blue)
@@ -50,8 +50,10 @@ for user_conf in angular_spins
     local conf = InitConfig(user_conf, data_folder_path)
     @eval @everywhere conf = $conf
 
-    printstyled("\n\nStarting with configuration:\nj0=$(conf.j0), jpm=$(conf.jpm) ...\n\n"; bold=true, color=:bold)
+    printstyled("\n\nStarting with configuration:\nj0=$(conf.j0_float), jpm=$(conf.jpm_float) ...\n\n"; bold=true, color=:bold)
     sleep(1)
+
+    
 
 end
 

@@ -13,13 +13,15 @@ using Distributed
 
 printstyled("\nBlack-to-White hole weight factor computation parallelized on $(number_of_workers) worker(s)\n\n"; bold=true, color=:blue)
 
-println("precompiling packages...")
+@everywhere include("../parameters.jl")
+
+verbosity_flux && println("precompiling packages...")
 @everywhere begin
     include("../inc/pkgs.jl")
 end
-println("done\n")
+verbosity_flux && println("done\n")
 
-println("precompiling source code...")
+verbosity_flux && println("precompiling source code...")
 @everywhere begin
     include("../parameters.jl")
     include("../src/init.jl")
@@ -27,9 +29,9 @@ println("precompiling source code...")
     include("../src/check.jl")
     include("../src/amplitude.jl")
 end
-println("done\n")
+verbosity_flux && println("done\n")
 
-println("checking configurations to compute...")
+verbosity_flux && println("checking configurations to compute...")
 CheckPreliminaryParameters(data_folder_path, sl2cfoam_next_data_folder, Dl_min, Dl_max, number_of_workers, number_of_threads)
 
 @everywhere begin
@@ -41,7 +43,7 @@ CheckPreliminaryParameters(data_folder_path, sl2cfoam_next_data_folder, Dl_min, 
         CheckConfiguration!(user_conf)
     end
 end
-println("done\n")
+verbosity_flux && println("done\n")
 
 println("-------------------------------------------------------------------------\n")
 printstyled("Starting computations\n\n"; bold=true, color=:blue)
