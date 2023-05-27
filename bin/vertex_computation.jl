@@ -36,7 +36,7 @@ CheckPreliminaryParameters(data_folder_path, sl2cfoam_next_data_folder, Dl_min, 
 @everywhere begin
     task_id = myid()
     number_of_tasks = nprocs()
-    number_conf = size(angular_spins)[1]
+    number_conf = size(angular_spins,1)
 
     for user_conf in angular_spins
         CheckConfiguration!(user_conf)
@@ -106,12 +106,5 @@ end
 # store computational times
 df = DataFrame(computational_times, column_labels)
 CSV.write("$(comp_times_data_path)/immirzi_$(immirzi)_workers_$(number_of_workers)_threads_$(number_of_threads).csv", df)
-
-# release workers
-#if (number_of_workers > 1)
-#    for i in workers()
-#        rmprocs(i)
-#    end
-#end
 
 printstyled("\nCompleted\n\n"; bold=true, color=:blue)

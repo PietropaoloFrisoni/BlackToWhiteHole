@@ -6,6 +6,7 @@ mutable struct Configuration
     jpm::Half{Int8}
     jpm_float::Float64
     Kpm::Half{Int8}
+    m::Float64
 
     contracted_spinfoam_found::Bool
 
@@ -30,7 +31,10 @@ function InitConfig(user_conf, data_folder_path::String, contracted_spinfoam_fou
     # subfolder with all angular spins combinations
     spinfoam_folder = "$(base_folder)/angular_spins"
 
-    conf = Configuration(j0, j0_float, K0, jpm, jpm_float, Kpm,
+    #TODO: this is valid only for T=0.
+    m = sqrt(immirzi * j0_float / 2)
+
+    conf = Configuration(j0, j0_float, K0, jpm, jpm_float, Kpm, m,
         contracted_spinfoam_found,
         base_folder, spinfoam_folder)
 
@@ -38,7 +42,7 @@ function InitConfig(user_conf, data_folder_path::String, contracted_spinfoam_fou
 
 end
 
-function InitSL2Cfoam(immirzi, sl2cfoam_next_data_folder, number_of_threads, verbosity_flux)
+function InitSL2Cfoam(immirzi, sl2cfoam_next_data_folder::String, number_of_threads::Int64, verbosity_flux::Bool; shell_parallelization::Bool=false)
 
     isMPI = @ccall SL2Cfoam.clib.sl2cfoam_is_MPI()::Bool
     isMPI && error("MPI version not allowed")
@@ -46,17 +50,9 @@ function InitSL2Cfoam(immirzi, sl2cfoam_next_data_folder, number_of_threads, ver
     conf_sl2cfoam_next = SL2Cfoam.Config(VerbosityOff, HighAccuracy, 100, 0)
     SL2Cfoam.cinit(sl2cfoam_next_data_folder, immirzi, conf_sl2cfoam_next)
 
-    shell_parallelization = false
-
     # enable C library automatic parallelization
-    if (number_of_threads > 1)
-        shell_parallelization = true
-    end
-
+    number_of_threads > 1 && (shell_parallelization = true)
     SL2Cfoam.set_OMP(shell_parallelization)
-
-    if (verbosity_flux && myid() == 1)
-        println("sl2cfoam-next initialized on each worker with C parallelization set to $(shell_parallelization)")
-    end
+    verbosity_flux && myid() == 1 && log("sl2cfoam-next initialized on each worker with C parallelization set to $(shell_parallelization)")
 
 end

@@ -30,12 +30,10 @@ println("done\n")
 println("checking configurations to compute...")
 CheckPreliminaryParameters(data_folder_path, sl2cfoam_next_data_folder, Dl_min, Dl_max, 1, 0)
 
-number_conf = size(angular_spins)[1]
-
 @everywhere begin
     task_id = myid()
     number_of_tasks = nprocs()
-    number_conf = size(angular_spins)[1]
+    number_conf = size(angular_spins,1)
 
     for user_conf in angular_spins
         CheckConfiguration!(user_conf)
@@ -43,10 +41,7 @@ number_conf = size(angular_spins)[1]
 end
 println("done\n")
 
-if number_of_workers > T_sampling_parameter
-    error("Parallelization not safe: T_sampling_parameter is too low")
-end
-println("done\n")
+number_of_workers > T_sampling_parameter && error("Parallelization not safe: T_sampling_parameter is too low")
 
 println("-------------------------------------------------------------------------\n")
 printstyled("Starting computations\n\n"; bold=true, color=:blue)
@@ -141,11 +136,5 @@ for user_conf in angular_spins
 
 end
 
-# release workers
-if (number_of_workers > 1)
-    for i in workers()
-        rmprocs(i)
-    end
-end
-
+ReleaseWorkers(number_of_workers)
 printstyled("\nCompleted\n\n"; bold=true, color=:blue)

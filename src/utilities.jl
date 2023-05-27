@@ -41,3 +41,18 @@ end
 @inline function from_index_to_intertwiner(tuple, index)
     return tuple[1][1] + index - 1
 end
+
+# logging function (flushing needed)
+function log(x...)
+    println("[ ", now(), " ] - ", join(x, " ")...)
+    flush(stdout)
+end
+
+# release workers
+function ReleaseWorkers(number_of_workers::Int64=nworkers())
+    if (number_of_workers > 1)
+        for i in workers()
+            rmprocs(i)
+        end
+    end
+end
