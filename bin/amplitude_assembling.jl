@@ -33,7 +33,7 @@ CheckPreliminaryParameters(data_folder_path, sl2cfoam_next_data_folder, Dl_min, 
 @everywhere begin
     task_id = myid()
     number_of_tasks = nprocs()
-    number_conf = size(angular_spins,1)
+    number_conf = size(angular_spins, 1)
 
     for user_conf in angular_spins
         CheckConfiguration!(user_conf)
@@ -41,7 +41,7 @@ CheckPreliminaryParameters(data_folder_path, sl2cfoam_next_data_folder, Dl_min, 
 end
 println("done\n")
 
-number_of_workers > T_sampling_parameter && error("Parallelization not safe: T_sampling_parameter is too low")
+number_of_workers > T_sampling_parameter && warn("Parallelization not fully exploited: T_sampling_parameter is too low")
 
 println("-------------------------------------------------------------------------\n")
 printstyled("Starting computations\n\n"; bold=true, color=:blue)
@@ -67,25 +67,20 @@ for user_conf in angular_spins
         @load "$(conf.base_folder)/intertwiners_range.jld2" intertwiners_range
     end
 
-    m = sqrt(conf.j0_float * immirzi)
-    T_range = LinRange(0, 4 * pi * m / immirzi, T_sampling_parameter)
+    T_range = LinRange(0, 4 * pi * conf.m / immirzi, T_sampling_parameter)
 
     amplitude = SharedArray{ComplexF64}(T_sampling_parameter, Dl_max - Dl_min + 1)
     amplitude[:] .= 0.0 + 0.0 * im
 
-    amplitude_abs_sq = Array{BigFloat}(undef, T_sampling_parameter, Dl_max - Dl_min + 1)
-    amplitude_abs_sq_integrated = Array{BigFloat}(undef, Dl_max - Dl_min + 1)
-    amplitude_abs_sq_T_integrated = Array{BigFloat}(undef, Dl_max - Dl_min + 1)
-    amplitude_abs_sq[:] .= 0.0
-    amplitude_abs_sq_integrated[:] .= 0.0
-    amplitude_abs_sq_T_integrated[:] .= 0.0
+    amplitude_abs_sq = zeros(T_sampling_parameter, Dl_max - Dl_min + 1)
+    amplitude_abs_sq_integrated = zeros(Dl_max - Dl_min + 1)
+    amplitude_abs_sq_T_integrated = zeros(Dl_max - Dl_min + 1)
 
     local column_labels = String[]
 
     for Dl = Dl_min:Dl_max
 
         printstyled("\nCurrent Dl=$(Dl)...\n"; bold=true, color=:magenta)
-
         push!(column_labels, "Dl_$(Dl)")
 
         @time @sync @distributed for T = 1:T_sampling_parameter
@@ -115,16 +110,14 @@ for user_conf in angular_spins
 
     end
 
-    for Dl = Dl_min:Dl_max
-        for T = 1:T_sampling_parameter
-            amplitude_abs_sq[T, Dl+1] = BigFloat(abs(amplitude[T, Dl+1])^2)
-        end
-    end
+    [[amplitude_abs_sq[T, Dl+1] = abs(amplitude[T, Dl+1])^2 for T = 1:T_sampling_parameter] for Dl = Dl_min:Dl_max]
+    sum_check(amplitude_abs_sq) && error("NaN or Inf in amplitude abs sq")
 
     AmplitudeIntegration!(amplitude_abs_sq_integrated, amplitude_abs_sq_T_integrated, amplitude_abs_sq, T_range, T_sampling_parameter)
 
-    crossing_times = Array{BigFloat}(undef, Dl_max - Dl_min + 1)
+    crossing_times = Array{Float64}(undef, Dl_max - Dl_min + 1)
     crossing_times[:] .= amplitude_abs_sq_T_integrated[:] ./ amplitude_abs_sq_integrated[:]
+    sum_check(crossing_times) && error("NaN or Inf in crossing times")
 
     amplitude_abs_sq_df = DataFrame(amplitude_abs_sq, column_labels)
     crossing_times_df = DataFrame(transpose(crossing_times), column_labels)

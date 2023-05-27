@@ -49,3 +49,9 @@ function CheckConfiguration!(user_conf)
     #TODO: add further checks
 
 end
+
+# check if there's NaN in (multidimensional) array
+function sum_check(x)
+    s = sum(x)
+    isnan(s) || !isfinite(s)
+end

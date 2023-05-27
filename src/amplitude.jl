@@ -11,6 +11,8 @@ function WeightFactor!(weight_factor, alpha, j0, jpm, m, T_range, Immirzi, spins
     pre_fact_plus = exp(im * Immirzi * zita_plus)
     pre_fact_minus = exp(im * Immirzi * zita_minus)
 
+    pre_fact_from_boundary_states = 1 #(exp((j0^(alpha + 2)) / (2)))^(4) * (exp((jpm^(alpha + 2)) / (2)))^(12)
+
     @inbounds for T_index in eachindex(T_range)
 
         zita_0 = T_range[T_index] / (2 * m)
@@ -60,7 +62,7 @@ function WeightFactor!(weight_factor, alpha, j0, jpm, m, T_range, Immirzi, spins
 
                 radial_factor = minus_radial_factor * plus_radial_factor
 
-                weight_factor[counter, T_index] += radial_factor * angular_factor
+                weight_factor[counter, T_index] += pre_fact_from_boundary_states * radial_factor * angular_factor
 
             end
 
@@ -97,4 +99,12 @@ function AmplitudeIntegration!(amplitude_abs_sq_integrated, amplitude_abs_sq_T_i
 
     end
 
+end
+
+@inline function measure_coefficient_single_link(j, alpha)
+    return ((j^(-alpha / 2) * (1 + 2j)) / (64 * pi^(7 / 2))) * (exp(-j^(alpha + 2)) - exp(-j^(alpha) * (1 + j)^2))
+end
+
+function measure_coefficient(j0, jpm, alpha)
+    return measure_coefficient_single_link(j0, alpha)^4 * measure_coefficient_single_link(jpm, alpha)^(12)
 end

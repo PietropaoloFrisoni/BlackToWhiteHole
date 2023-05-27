@@ -35,7 +35,7 @@ CheckPreliminaryParameters(data_folder_path, sl2cfoam_next_data_folder, Dl_min, 
 @everywhere begin
     task_id = myid()
     number_of_tasks = nprocs()
-    number_conf = size(angular_spins,1)
+    number_conf = size(angular_spins, 1)
 
     for user_conf in angular_spins
         CheckConfiguration!(user_conf)
@@ -67,8 +67,7 @@ for user_conf in angular_spins
         @load "$(conf.base_folder)/intertwiners_range.jld2" intertwiners_range
     end
 
-    m = sqrt(conf.j0_float * immirzi)
-    T_range = LinRange(0, 4 * pi * m / immirzi, T_sampling_parameter)
+    T_range = LinRange(0, 4 * pi * conf.m / immirzi, T_sampling_parameter)
 
     @time @sync @distributed for current_angular_spins_comb in eachindex(spins_map)
 
@@ -85,12 +84,10 @@ for user_conf in angular_spins
         mkpath("$(path_weight_factor)")
 
         total_elements = total_radial_spins_combinations^2
-
         weight_factor = Array{ComplexF64,2}(undef, total_elements, T_sampling_parameter)
 
-        WeightFactor!(weight_factor, alpha, conf.j0_float, conf.jpm_float, m, T_range, immirzi, spins_configurations,
-            lower_bound, upper_bound, j1, j2, j3, j4)
-
+        WeightFactor!(weight_factor, alpha, conf.j0_float, conf.jpm_float, conf.m, T_range, immirzi, spins_configurations, lower_bound, upper_bound, j1, j2, j3, j4)
+        sum_check(weight_factor) && error("NaN or Inf in weight factor")
         @save "$(path_weight_factor)/weight_factor_T_$(T_sampling_parameter).jld2" weight_factor
 
     end

@@ -45,6 +45,10 @@ CheckPreliminaryParameters(data_folder_path, sl2cfoam_next_data_folder, Dl_min, 
 end
 println("done\n")
 
+println("Initializing sl2cfoam-next on each worker...")
+@everywhere InitSL2Cfoam(immirzi, sl2cfoam_next_data_folder, number_of_threads, verbosity_flux)
+println("done\n")
+
 println("-------------------------------------------------------------------------\n")
 printstyled("Starting computations\n\n"; bold=true, color=:blue)
 println("-------------------------------------------------------------------------")
@@ -101,6 +105,7 @@ for user_conf in angular_spins
             coherent_matrix_down[:] .= coherent_matrix_up[:]
 
             SpinfoamFinalContraction!(contracted_spinfoam, coherent_matrix_up, coherent_matrix_down, i1_range, total_radial_spins_combinations)
+            sum_check(contracted_spinfoam) && error("NaN or Inf in contracted spinfoam")
 
             @save "$(path_contracted_spinfoam)/contracted_spinfoam.jld2" contracted_spinfoam
 
