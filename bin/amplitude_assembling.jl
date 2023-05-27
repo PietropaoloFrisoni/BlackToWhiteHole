@@ -68,13 +68,14 @@ for user_conf in angular_spins
     end
 
     T_range = LinRange(0, 4 * pi * conf.m / immirzi, T_sampling_parameter)
+    Dl_range = Dl_max - Dl_min + 1
 
-    amplitude = SharedArray{ComplexF64}(T_sampling_parameter, Dl_max - Dl_min + 1)
+    amplitude = SharedArray{ComplexF64}(T_sampling_parameter, Dl_range)
     amplitude[:] .= 0.0 + 0.0 * im
 
-    amplitude_abs_sq = zeros(T_sampling_parameter, Dl_max - Dl_min + 1)
-    amplitude_abs_sq_integrated = zeros(Dl_max - Dl_min + 1)
-    amplitude_abs_sq_T_integrated = zeros(Dl_max - Dl_min + 1)
+    amplitude_abs_sq = zeros(T_sampling_parameter, Dl_range)
+    amplitude_abs_sq_integrated = zeros(Dl_range)
+    amplitude_abs_sq_T_integrated = zeros(Dl_range)
 
     local column_labels = String[]
 
@@ -110,13 +111,12 @@ for user_conf in angular_spins
 
     end
 
-    [[amplitude_abs_sq[T, Dl+1] = abs(amplitude[T, Dl+1])^2 for T = 1:T_sampling_parameter] for Dl = Dl_min:Dl_max]
-    sum_check(amplitude_abs_sq) && error("NaN or Inf in amplitude abs sq")
+    [[amplitude_abs_sq[T, Dl+1] = abs(amplitude[T, Dl+1])^2 * GlobalFactor(conf.j0_float, conf.jpm_float, alpha) for T = 1:T_sampling_parameter] for Dl = Dl_min:Dl_max]
+    sum_check(amplitude_abs_sq) && error("NaN or Inf in amplitude absolute squared")
 
     AmplitudeIntegration!(amplitude_abs_sq_integrated, amplitude_abs_sq_T_integrated, amplitude_abs_sq, T_range, T_sampling_parameter)
 
-    crossing_times = Array{Float64}(undef, Dl_max - Dl_min + 1)
-    crossing_times[:] .= amplitude_abs_sq_T_integrated[:] ./ amplitude_abs_sq_integrated[:]
+    crossing_times = [amplitude_abs_sq_T_integrated[Dl_index] / amplitude_abs_sq_integrated[Dl_index] for Dl_index in 1:Dl_range]
     sum_check(crossing_times) && error("NaN or Inf in crossing times")
 
     amplitude_abs_sq_df = DataFrame(amplitude_abs_sq, column_labels)

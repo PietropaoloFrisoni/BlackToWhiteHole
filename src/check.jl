@@ -1,31 +1,24 @@
 # preliminary check
 function CheckPreliminaryParameters(data_folder_path::String, sl2cfoam_next_data_folder::String, Dl_min::Int64, Dl_max::Int64, number_of_workers::Int, number_of_threads::Int)
 
-    if (number_of_workers * number_of_threads > length(Sys.cpu_info()))
-        printstyled("WARNING: you are using more resources than available cores on this system. Performances will be affected\n\n"; bold=true, color=:red)
-    end
-    sleep(1)
+    # resources check
+    (number_of_workers * number_of_threads > length(Sys.cpu_info())) && warn("more procs than available cores on this system. Performances will be affected")
 
     # data folder check
-    if (isdir(data_folder_path) == false)
-        error("data folder path does not exists")
-    end
+    !isdir(data_folder_path) && error("data folder path does not exists")
 
     # sl2cfoam_next data folder check
-    if (isdir(sl2cfoam_next_data_folder) == false)
-        error("data folder path of sl2cfoam_next does not exists")
-    end
+    !isdir(sl2cfoam_next_data_folder) && error("data folder path of sl2cfoam_next does not exists")
 
-    # shell parameter check
-    if (typeof(Dl_min) != Int64 || Dl_min < 0)
-        error("Please assign number of minimum shell as positive integer")
-    end
-    if (typeof(Dl_max) != Int64 || Dl_max < 0)
-        error("Please assign number of maximum shell as positive integer")
-    end
-    if (Dl_max < Dl_min)
-        error("Maximum number of shell must be larger than the minimum one")
-    end
+    # truncation parameter checks
+    Dl_min < 0 && error("Assign positive or null minimum truncation parameter")
+    Dl_max < 0 && error("Assign positive or null maximum truncation parameter")
+    Dl_max < Dl_min && error("Maximum value of the truncation parameter cannot be smaller than minimum")
+
+    # remaining checks
+    immirzi < 0 && error("Assign positive Immirzi parameter")
+    T_sampling_parameter <= 0 && error("Assign positive T sampling parameter")
+    size(angular_spins, 1) == 0 && error("Assign positive number of spins configurations")
 
 end
 
@@ -42,11 +35,7 @@ function CheckConfiguration!(user_conf)
     end
 
     # spin check
-    if (j < 0)
-        error("Please assign positive spin in user_conf $(user_conf)\n")
-    end
-
-    #TODO: add further checks
+    j < 0 && error("Please assign positive spin in user_conf $(user_conf)\n")
 
 end
 

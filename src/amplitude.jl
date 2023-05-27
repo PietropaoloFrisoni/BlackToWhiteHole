@@ -101,10 +101,12 @@ function AmplitudeIntegration!(amplitude_abs_sq_integrated, amplitude_abs_sq_T_i
 
 end
 
-@inline function measure_coefficient_single_link(j, alpha)
-    return ((j^(-alpha / 2) * (1 + 2j)) / (64 * pi^(7 / 2))) * (exp(-j^(alpha + 2)) - exp(-j^(alpha) * (1 + j)^2))
+# for a single link, it takes into account the normalization factor from the coherent state (including the abs^2)
+# and the measure coefficient for the resolution of identity
+@inline function GlobalFactorSingleLink(j::Float64, alpha)
+    j^(-alpha / 2) * (1 + 2j) * (1 - exp(-j^alpha - 2 * j^(alpha + 1)))
 end
 
-function measure_coefficient(j0, jpm, alpha)
-    return measure_coefficient_single_link(j0, alpha)^4 * measure_coefficient_single_link(jpm, alpha)^(12)
+@inline function GlobalFactor(j0::Float64, jpm::Float64, alpha)
+    GlobalFactorSingleLink(j0, alpha)^4 * GlobalFactorSingleLink(jpm, alpha)^(12)
 end
