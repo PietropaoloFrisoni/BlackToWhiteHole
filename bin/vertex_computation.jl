@@ -38,7 +38,7 @@ CheckPreliminaryParameters(data_folder_path, sl2cfoam_next_data_folder, Dl_min, 
 @everywhere begin
     task_id = myid()
     number_of_tasks = nprocs()
-    number_conf = size(angular_spins,1)
+    number_conf = size(angular_spins, 1)
 
     for user_conf in angular_spins
         CheckConfiguration!(user_conf)
@@ -71,7 +71,7 @@ for user_conf in angular_spins
     conf = InitConfig(user_conf, data_folder_path)
     @eval @everywhere conf = $conf
 
-    printstyled("\n\nStarting with configuration:\nj0=$(conf.j0), jpm=$(conf.jpm) ...\n\n"; bold=true, color=:bold)
+    printstyled("\n\nStarting with configuration:\nj0=$(conf.j0_float), jpm=$(conf.jpm_float) ...\n\n"; bold=true, color=:bold)
     sleep(1)
 
     #####################################################################################################################################

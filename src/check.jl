@@ -26,16 +26,18 @@ end
 # check each input configuration
 function CheckConfiguration!(user_conf)
 
-    j = user_conf[1]
+    length(user_conf) > 2 && error("Please assign just j0 or j0 and jpm as spin")
 
-    # set spin to float (ending in .0) if integer
-    if (typeof(j) == Int64)
-        user_conf[1] = convert(Float64, user_conf[1])
-        j = convert(Float64, j)
-    end
+    j0 = user_conf[1]
 
     # spin check
-    j < 0 && error("Please assign positive spin in user_conf $(user_conf)\n")
+    j0 < 0 && error("Please assign positive spin in user_conf $(user_conf)\n")
+
+    # set spin to float (ending in .0) if integer
+    if (typeof(j0) == Int64)
+        user_conf[1] = convert(Float64, user_conf[1])
+        j0 = convert(Float64, j0)
+    end
 
 end
 

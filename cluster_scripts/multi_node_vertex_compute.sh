@@ -15,8 +15,8 @@ echo
 
 # start commands
 
-BASEDIR=/home/frisus95/projects/def-vidotto/frisus95/sl2cfoam_next_aggiornata
-DATADIR=/home/frisus95/projects/def-vidotto/frisus95/sl2cfoam_next_aggiornata/data_sl2cfoam
+BASEDIR=/home/frisus95/projects/def-vidotto/frisus95/sl2cfoam-next
+DATADIR=${BASEDIR}/data_sl2cfoam
 
 export LD_LIBRARY_PATH="${BASEDIR}/lib":$LD_LIBRARY_PATH
 

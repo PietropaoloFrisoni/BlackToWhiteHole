@@ -54,7 +54,7 @@ for user_conf in angular_spins
     local conf = InitConfig(user_conf, data_folder_path)
     @eval @everywhere conf = $conf
 
-    printstyled("\n\nStarting with configuration:\nj0=$(conf.j0), jpm=$(conf.jpm) ...\n\n"; bold=true, color=:bold)
+    printstyled("\n\nStarting with configuration:\nj0=$(conf.j0_float), jpm=$(conf.jpm_float) ...\n\n"; bold=true, color=:bold)
     sleep(1)
 
     #####################################################################################################################################

@@ -18,12 +18,23 @@ end
 function InitConfig(user_conf, data_folder_path::String, contracted_spinfoam_found::Bool=false)
 
     j0_float = user_conf[1]
-    jpm_float = round(Int64, 2 * (j0_float / (sqrt(6)))) / 2
     j0 = half(2 * j0_float)
-    jpm = half(2 * jpm_float)
 
-    K0 = half(1)
-    Kpm = half(1)
+    if length(user_conf) == 1
+        jpm_float = round(Int64, 2 * (j0_float / (sqrt(6)))) / 2
+        jpm = half(2 * jpm_float)
+    else
+        jpm_float = user_conf[2]
+        jpm = half(2 * jpm_float)
+    end
+
+    if j0_float > 5
+        K0 = half(0)
+        Kpm = half(0)
+    else
+        K0 = half(1)
+        Kpm = half(1)
+    end
 
     # where spins_conf, spins_map and intertwiner_range are stored
     base_folder = "$(data_folder_path)/data/amplitude_data/j0=$(j0_float)_jpm=$(jpm_float)/K0_$(twice(K0)/2)_Kpm_$(twice(Kpm)/2)"
@@ -49,6 +60,6 @@ function InitSL2Cfoam(immirzi, sl2cfoam_next_data_folder::String, number_of_thre
     # enable C library automatic parallelization
     number_of_threads > 1 && (shell_parallelization = true)
     SL2Cfoam.set_OMP(shell_parallelization)
-    verbosity_flux && myid() == 1 && log("sl2cfoam-next initialized on each worker with C parallelization set to $(shell_parallelization)")
+    verbosity_flux && myid() == 1 && log("sl2cfoam-next initialized on each worker with C parallelization set to $(shell_parallelization)\n")
 
 end
