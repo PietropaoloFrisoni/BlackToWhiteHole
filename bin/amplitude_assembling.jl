@@ -124,7 +124,7 @@ for user_conf in angular_spins
     amplitude_abs_sq_df = DataFrame(amplitude_abs_sq, column_labels)
     crossing_times_df = DataFrame(transpose(crossing_times), column_labels)
 
-    base_folder_alpha = "$(conf.base_folder)/immirzi_$(immirzi)/alpha_$(alpha)"
+    base_folder_alpha = "$(conf.base_folder)/immirzi_$(immirzi)/alpha_$(alpha)/Dl_range_$(Dl_range)"
     mkpath(base_folder_alpha)
     CSV.write("$(base_folder_alpha)/amplitude_abs_sq_T_$(T_sampling_parameter).csv", amplitude_abs_sq_df)
     CSV.write("$(base_folder_alpha)/crossing_time_$(T_sampling_parameter).csv", crossing_times_df)
