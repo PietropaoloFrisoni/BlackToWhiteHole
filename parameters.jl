@@ -1,5 +1,5 @@
 # value of the Immirzi parameter
-immirzi = 1
+immirzi = 5
 
 # spreading parameter of the extrinsic boundary state
 alpha = 3

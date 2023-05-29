@@ -1,6 +1,6 @@
 # computes the weight factor and stores the result into the first vector
-function WeightFactor!(weight_factor::Matrix{ComplexF64}, alpha, j0, jpm, m, T_range, Immirzi, spins_configurations,
-    lower_bound, upper_bound, j1, j2, j3, j4)
+function WeightFactor!(weight_factor::Matrix{ComplexF64}, alpha, j0::Float64, jpm::Float64, m::Float64, T_range::LinRange{Float64,Int64}, immirzi, spins_configurations::NTuple{10,HalfInt8},
+    lower_bound, upper_bound, j1::Float64, j2::Float64, j3::Float64, j4::Float64)
 
     zita_plus = -32 * sqrt(6) / 9
     zita_minus = 32 * sqrt(6) / 9
@@ -8,13 +8,13 @@ function WeightFactor!(weight_factor::Matrix{ComplexF64}, alpha, j0, jpm, m, T_r
     pre_fact_angul_1 = exp(-(j0^alpha) / (2))
     pre_fact_rad = exp(-(jpm^alpha) / (2))
 
-    pre_fact_plus = exp(im * Immirzi * zita_plus)
+    pre_fact_plus = exp(im * immirzi * zita_plus)
     pre_fact_minus = exp(im * Immirzi * zita_minus)
 
     @inbounds for T_index in eachindex(T_range)
 
         zita_0 = T_range[T_index] / (2 * m)
-        pre_fact_angul_2 = exp(im * Immirzi * zita_0)
+        pre_fact_angul_2 = exp(im * immirzi * zita_0)
         angular_factor = Dimension(j1) * Dimension(j2) * Dimension(j3) * Dimension(j4) *
                          pre_fact_angul_2^(j1) * pre_fact_angul_2^(j2) * pre_fact_angul_2^(j3) * pre_fact_angul_2^(j4) *
                          pre_fact_angul_1^((j1 - j0)^2) * pre_fact_angul_1^((j2 - j0)^2) *
