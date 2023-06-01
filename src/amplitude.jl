@@ -1,6 +1,6 @@
 # computes the weight factor and stores the result into the first vector
-function WeightFactor!(weight_factor::Matrix{ComplexF64}, alpha, j0::Float64, jpm::Float64, m::Float64, T_range::LinRange{Float64,Int64}, immirzi, spins_configurations::NTuple{10,HalfInt8},
-    lower_bound, upper_bound, j1::Float64, j2::Float64, j3::Float64, j4::Float64)
+function WeightFactor!(weight_factor::Matrix{ComplexF64}, alpha, j0::Float64, jpm::Float64, m::Float64, T_range::LinRange{Float64,Int64}, immirzi, spins_configurations::Vector{NTuple{10, HalfInt8}},
+    lower_bound::Int64, upper_bound::Int64, j1::Float64, j2::Float64, j3::Float64, j4::Float64)
 
     zita_plus = -32 * sqrt(6) / 9
     zita_minus = 32 * sqrt(6) / 9
@@ -9,7 +9,7 @@ function WeightFactor!(weight_factor::Matrix{ComplexF64}, alpha, j0::Float64, jp
     pre_fact_rad = exp(-(jpm^alpha) / (2))
 
     pre_fact_plus = exp(im * immirzi * zita_plus)
-    pre_fact_minus = exp(im * Immirzi * zita_minus)
+    pre_fact_minus = exp(im * immirzi * zita_minus)
 
     @inbounds for T_index in eachindex(T_range)
 
@@ -20,7 +20,7 @@ function WeightFactor!(weight_factor::Matrix{ComplexF64}, alpha, j0::Float64, jp
                          pre_fact_angul_1^((j1 - j0)^2) * pre_fact_angul_1^((j2 - j0)^2) *
                          pre_fact_angul_1^((j3 - j0)^2) * pre_fact_angul_1^((j4 - j0)^2)
 
-        weight_factor[:, T_index] .= 0.0 + 0.0 * im
+        weight_factor[:, T_index] .= 0.0 + 0.0im
 
         counter = 0
 
@@ -70,8 +70,8 @@ function WeightFactor!(weight_factor::Matrix{ComplexF64}, alpha, j0::Float64, jp
 
 end
 
-# integrates |W|^2 and T*|W|^2 over the first period in T using the trapezoidal rule
-function AmplitudeIntegration!(amplitude_abs_sq_integrated::Vector{Float64}, amplitude_abs_sq_T_integrated::Vector{Float64}, amplitude_abs_sq::Matrix{Float64}, T_range::LinRange{Float64,Int64}, T_sampling_parameter::Int64)
+# integrates mu*|W|^2 and T*mu*|W|^2 over the first period in T using the trapezoidal rule
+function AmplitudeIntegrationT!(amplitude_abs_sq_integrated::Vector{Float64}, amplitude_abs_sq_T_integrated::Vector{Float64}, amplitude_abs_sq::Matrix{Float64}, T_range::LinRange{Float64,Int64}, T_sampling_parameter::Int64)
 
     Delta_x = T_range[2] - T_range[1]
     amp = 0.0
@@ -83,10 +83,8 @@ function AmplitudeIntegration!(amplitude_abs_sq_integrated::Vector{Float64}, amp
         amp_times_T += amplitude_abs_sq[1, Dl_index] * T_range[1]
 
         for T_index = 2:(T_sampling_parameter-1)
-
             amp += 2 * amplitude_abs_sq[T_index, Dl_index]
             amp_times_T += 2 * amplitude_abs_sq[T_index, Dl_index] * T_range[T_index]
-
         end
 
         amp += amplitude_abs_sq[T_sampling_parameter, Dl_index]
@@ -105,6 +103,7 @@ end
     j^(-alpha / 2) * (1 + 2j) * (1 - exp(-j^alpha - 2 * j^(alpha + 1)))
 end
 
+# normalization factor from the coherent state (including the abs^2) and the measure coefficient for the resolution of identity
 @inline function GlobalFactor(j0::Float64, jpm::Float64, alpha)
     GlobalFactorSingleLink(j0, alpha)^4 * GlobalFactorSingleLink(jpm, alpha)^(12)
 end

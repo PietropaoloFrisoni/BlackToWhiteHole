@@ -116,7 +116,7 @@ for user_conf in angular_spins
     [[amplitude_abs_sq[T, Dl+1] = abs(amplitude[T, Dl+1])^2 * GlobalFactor(conf.j0_float, conf.jpm_float, alpha) for T = 1:T_sampling_parameter] for Dl = Dl_min:Dl_max]
     sum_check(amplitude_abs_sq) && error("NaN or Inf in amplitude absolute squared")
 
-    AmplitudeIntegration!(amplitude_abs_sq_integrated, amplitude_abs_sq_T_integrated, amplitude_abs_sq, T_range, T_sampling_parameter)
+    AmplitudeIntegrationT!(amplitude_abs_sq_integrated, amplitude_abs_sq_T_integrated, amplitude_abs_sq, T_range, T_sampling_parameter)
 
     crossing_times = [amplitude_abs_sq_T_integrated[Dl_index] / amplitude_abs_sq_integrated[Dl_index] for Dl_index in 1:Dl_range]
     sum_check(crossing_times) && error("NaN or Inf in crossing times")
