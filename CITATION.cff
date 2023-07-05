@@ -4,8 +4,8 @@ authors:
     - family-names: Frisoni
       given-names: Pietropaolo 
       orcid: https://orcid.org/0000-0002-0099-0409    
-title: TODO
+title: "Numerical approach to the black-to-white hole transition"
 version: 1.0.1
-doi: TODO
-date-released: TODO
-url: TODO
+doi: https://doi.org/10.1103/PhysRevD.107.126012
+date-released: 2023-04-05
+url: https://github.com/PietropaoloFrisoni/BlackToWhiteHole
